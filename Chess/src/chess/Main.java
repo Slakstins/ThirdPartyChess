@@ -6,6 +6,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import pieces.*;
+import sockets.Client;
+import sockets.Server;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -27,8 +30,10 @@ import java.util.ListIterator;
  * 
  */
 
+
 public class Main extends JFrame implements MouseListener
 {
+	//start server for testing!
 	private static final long serialVersionUID = 1L;
 	
 	//Variable Declaration
@@ -157,7 +162,82 @@ public class Main extends JFrame implements MouseListener
 		controlPanel=new JPanel();
 		content.setLayout(new BorderLayout());
 		controlPanel.setLayout(new GridLayout(3,3));
-		controlPanel.setBorder(BorderFactory.createTitledBorder(null, "Statistics", TitledBorder.TOP,TitledBorder.CENTER, new Font("Lucida Calligraphy",Font.PLAIN,20), Color.ORANGE));
+		//controlPanel.setBorder(BorderFactory.createTitledBorder(null, "Statistics", TitledBorder.TOP,TitledBorder.CENTER, new Font("Lucida Calligraphy",Font.PLAIN,20), Color.ORANGE));
+
+		
+		
+		//SOCKETS UI
+		JPanel server = new JPanel();
+		JPanel client = new JPanel();
+
+		JLabel serverLabel = new JLabel("SERVER");
+		final JTextField portInput = new JTextField(null);
+		JLabel portLabel = new JLabel("Port: ");
+		portInput.setPreferredSize(new Dimension(50, 20));
+		//server.add(portInput);
+		JTextField ipInput = new JTextField(null);
+		JLabel ipLabel = new JLabel("IP: ");
+		ipInput.setPreferredSize(new Dimension(150, 20));
+		JButton startServerButton = new JButton("Start Server");
+		startServerButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String port = portInput.getText();
+				int portNum = 0;
+				try {
+					portNum = Integer.parseInt(port);
+				}catch (Exception ex) {
+					System.out.println("port must be number");
+				}
+				Server server = new Server(portNum);
+			}
+			
+		});	
+		server.add(serverLabel);
+		server.add(portLabel);
+		server.add(portInput);
+		server.add(ipLabel);
+		server.add(ipInput);
+		server.add(startServerButton);
+		
+
+		
+		JLabel clientLabel = new JLabel("CLIENT");
+		final JTextField clientPortInput = new JTextField(null);
+		JLabel clientPortLabel = new JLabel("Port: ");
+		clientPortInput.setPreferredSize(new Dimension(50, 20));
+		//server.add(portInput);
+		final JTextField clientIpInput = new JTextField(null);
+		JLabel clientIpLabel = new JLabel("IP: ");
+		clientIpInput.setPreferredSize(new Dimension(150, 20));
+		
+		JButton connectButton = new JButton("Connect");
+
+		connectButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String port = clientPortInput.getText();
+				String ip = clientIpInput.getText();
+				int portNum = 0;
+				try {
+					portNum = Integer.parseInt(port);
+				}catch (Exception ex) {
+					System.out.println("port must be number");
+				}
+				Client client = new Client(ip, portNum);
+			}
+			
+		});	
+		client.add(clientLabel);
+		client.add(clientPortLabel);
+		client.add(clientPortInput);
+		client.add(clientIpLabel);
+		client.add(clientIpInput);
+		client.add(connectButton);
+		
+		
 		
 		//Defining the Player Box in Control Panel
 		WhitePlayer=new JPanel();
@@ -200,6 +280,8 @@ public class Main extends JFrame implements MouseListener
 		blackstats.add(new JLabel("Won    :"));
 		WhitePlayer.add(whitestats,BorderLayout.WEST);
 		BlackPlayer.add(blackstats,BorderLayout.WEST);
+		controlPanel.add(client);
+		controlPanel.add(server);
 		controlPanel.add(WhitePlayer);
 		controlPanel.add(BlackPlayer);
 		
