@@ -167,23 +167,20 @@ public class Main extends JFrame implements MouseListener
 		
 		
 		//SOCKETS UI
-		JPanel server = new JPanel();
-		JPanel client = new JPanel();
+		final JPanel server = new JPanel();
+		final JPanel client = new JPanel();
 
 		JLabel serverLabel = new JLabel("SERVER");
-		final JTextField portInput = new JTextField(null);
-		JLabel portLabel = new JLabel("Port: ");
-		portInput.setPreferredSize(new Dimension(50, 20));
+		final JTextField serverPortInput = new JTextField(null);
+		JLabel serverPortLabel = new JLabel("Port: ");
+		serverPortInput.setPreferredSize(new Dimension(50, 20));
 		//server.add(portInput);
-		JTextField ipInput = new JTextField(null);
-		JLabel ipLabel = new JLabel("IP: ");
-		ipInput.setPreferredSize(new Dimension(150, 20));
 		JButton startServerButton = new JButton("Start Server");
 		startServerButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String port = portInput.getText();
+				String port = serverPortInput.getText();
 				int portNum = 0;
 				try {
 					portNum = Integer.parseInt(port);
@@ -195,12 +192,9 @@ public class Main extends JFrame implements MouseListener
 			
 		});	
 		server.add(serverLabel);
-		server.add(portLabel);
-		server.add(portInput);
-		server.add(ipLabel);
-		server.add(ipInput);
+		server.add(serverPortLabel);
+		server.add(serverPortInput);
 		server.add(startServerButton);
-		
 
 		
 		JLabel clientLabel = new JLabel("CLIENT");
@@ -339,7 +333,45 @@ public class Main extends JFrame implements MouseListener
 		start=new Button("Start");
 		start.setBackground(Color.black);
 		start.setForeground(Color.white);
-	    start.addActionListener(new START());
+	    start.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				//remove stuff to make space
+		
+				if(White==null||Black==null) {
+					JOptionPane.showMessageDialog(controlPanel, "Fill in the details");
+				return;
+				}
+				controlPanel.remove(client);
+				controlPanel.remove(server);
+				controlPanel.remove(WhitePlayer);
+				controlPanel.remove(BlackPlayer);
+				White.updateGamesPlayed();
+				White.Update_Player();
+				Black.updateGamesPlayed();
+				Black.Update_Player();
+				WNewPlayer.disable();
+				BNewPlayer.disable();
+				wselect.disable();
+				bselect.disable();
+				split.remove(temp);
+				split.add(board);
+				showPlayer.remove(timeSlider);
+				mov=new JLabel("Move:");
+				mov.setFont(new Font("Comic Sans MS",Font.PLAIN,20));
+				mov.setForeground(Color.red);
+				showPlayer.add(mov);
+				CHNC=new JLabel(move);
+				CHNC.setFont(new Font("Comic Sans MS",Font.BOLD,20));
+				CHNC.setForeground(Color.blue);
+				showPlayer.add(CHNC);
+				displayTime.remove(start);
+				displayTime.add(label);
+				timer=new Time(label);
+				timer.start();
+			}
+	    	
+	    });
 		start.setPreferredSize(new Dimension(120,40));
 		setTime.setFont(new Font("Arial",Font.BOLD,16));
 		label = new JLabel("Time Starts now", JLabel.CENTER);
@@ -712,43 +744,6 @@ public class Main extends JFrame implements MouseListener
 		// TODO Auto-generated method stub		
 	}
 	
-	
-	class START implements ActionListener
-	{
-
-	@SuppressWarnings("deprecation")
-	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		// TODO Auto-generated method stub
-		
-		if(White==null||Black==null)
-			{JOptionPane.showMessageDialog(controlPanel, "Fill in the details");
-			return;}
-		White.updateGamesPlayed();
-		White.Update_Player();
-		Black.updateGamesPlayed();
-		Black.Update_Player();
-		WNewPlayer.disable();
-		BNewPlayer.disable();
-		wselect.disable();
-		bselect.disable();
-		split.remove(temp);
-		split.add(board);
-		showPlayer.remove(timeSlider);
-		mov=new JLabel("Move:");
-		mov.setFont(new Font("Comic Sans MS",Font.PLAIN,20));
-		mov.setForeground(Color.red);
-		showPlayer.add(mov);
-		CHNC=new JLabel(move);
-		CHNC.setFont(new Font("Comic Sans MS",Font.BOLD,20));
-		CHNC.setForeground(Color.blue);
-		showPlayer.add(CHNC);
-		displayTime.remove(start);
-		displayTime.add(label);
-		timer=new Time(label);
-		timer.start();
-	}
-	}
 	
 	class TimeChange implements ChangeListener
 	{
