@@ -11,6 +11,8 @@ public class Server extends Thread
     private int port;
     private boolean running = false;
 
+    private RequestHandler blackRequestHandler = null;
+    private RequestHandler whiteRequestHandler = null;
     public Server( int port )
     {
         this.port = port;
@@ -22,17 +24,8 @@ public class Server extends Thread
         this.startServer();
         //NEED TO SHUT DOWN AT SOME POINT
 
-        // Automatically shutdown in 1 minute
-        try
-        {
-            //Thread.sleep( 60000 );
-        }
-        catch( Exception e )
-        {
-            e.printStackTrace();
-        }
 
-        //this.stopServer();
+        this.stopServer();
     }
 
     public void startServer()
@@ -53,11 +46,11 @@ public class Server extends Thread
         running = false;
         this.interrupt();
     }
-
-    @Override
-    public void run()
-    {
-        running = true;
+    
+    public void getConnections() {
+    	
+        Socket blackSocket = null;
+        Socket whiteSocket = null;
         while( running )
         {
             try
@@ -65,17 +58,48 @@ public class Server extends Thread
                 System.out.println( "Listening for a connection" );
 
                 // Call accept() to receive the next connection
-                Socket socket = serverSocket.accept();
-
-                // Pass the socket to the RequestHandler thread for processing
-                RequestHandler requestHandler = new RequestHandler( socket );
-                requestHandler.start();
+                if (blackSocket == null) {
+                	  blackSocket = serverSocket.accept();
+                      // Pass the socket to the RequestHandler thread for processing
+                      blackRequestHandler = new RequestHandler( blackSocket );
+                      blackRequestHandler.setChessTeam(ChessTeam.BLACK);
+                      blackRequestHandler.sendGreetings(ChessTeam.BLACK);
+                      
+                      //BREAK FOR TESTING
+                      
+                      
+                      
+                      break;
+                }
+                else if (whiteSocket == null) {
+                	  whiteSocket = serverSocket.accept();
+                      // Pass the socket to the RequestHandler thread for processing
+                      whiteRequestHandler = new RequestHandler( whiteSocket );
+                      whiteRequestHandler.setChessTeam(ChessTeam.WHITE);
+                      whiteRequestHandler.sendGreetings(ChessTeam.WHITE);
+                } else {
+                	System.out.println("players full");
+                	break;
+                }
+              
             }
             catch (IOException e)
             {
                 e.printStackTrace();
             }
         }
+    }
+
+    @Override
+    public void run()
+    {
+        running = true;
+        //obtain connections -- handle disconnects here if time
+        this.getConnections();
+        //connect turn logic here!
+        blackRequestHandler.takeTurn();
+        running = false;
+
     }
 
 

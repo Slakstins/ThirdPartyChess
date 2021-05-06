@@ -16,6 +16,7 @@ import javax.swing.Timer;
 
 public class Time
 {
+	//in MS - implementation may change
     private JLabel label;
     Timer countdownTimer;
     int Timerem;

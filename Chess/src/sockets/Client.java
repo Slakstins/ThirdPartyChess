@@ -7,10 +7,15 @@ import java.io.PrintStream;
 import java.net.Socket;
 import java.util.Scanner;
 
+import chess.Time;
+
 public class Client extends Thread
 {
 	private int port;
 	private String ip;
+    private PrintStream out;
+    private BufferedReader in;
+    private ChessTeam chessTeam;
     public Client( String ip, int port)
     {
 		if (port < 1024 || port > 49151) {
@@ -30,8 +35,8 @@ public class Client extends Thread
              Socket socket = new Socket( ip, port );
 
              // Create input and output streams to read from and write to the server
-             PrintStream out = new PrintStream( socket.getOutputStream() );
-             BufferedReader in = new BufferedReader( new InputStreamReader( socket.getInputStream() ) );
+             out = new PrintStream( socket.getOutputStream() );
+             in = new BufferedReader( new InputStreamReader( socket.getInputStream() ) );
 
              protocol(in, out);
              // Close our streams
@@ -48,34 +53,57 @@ public class Client extends Thread
              e.printStackTrace();
          }
     }
+    
+    public void sendLine(String line) {
+    	out.println(line);
+    	out.flush();
+    }
+    
+    public String receiveLine() {
+    	String line = null;
+    	try {
+			line = in.readLine();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return line;
+    }
 
     private void protocol(BufferedReader in, PrintStream out) {
 
             String line = null;
-			try {
-				//HAND SHAKE
-				// Read data from the server 
-				line = in.readLine();
-				System.out.println("Received: " + line);
-
-				//send data to the server
-				out.println("hi server!");
-				
-				
-				
-				Scanner scanner = new Scanner(System.in);
-				//send data from console input
-				while (!line.equals("exit")) {
-					line = scanner.nextLine();
-					out.println(line);
-				}
-				//send the exit message
-				out.println(line);
-				
-				
-				
-			} catch (IOException e) {
-				e.printStackTrace();
+			//HAND SHAKE
+			// Read greeting from the server 
+			line = receiveLine();
+			if (line.equals("black")) {
+				this.chessTeam = ChessTeam.BLACK;
 			}
+			if (line.equals("white")) {
+				this.chessTeam = ChessTeam.WHITE;
+			}
+			System.out.println("Received: " + line);
+
+			//send greeting to the server
+			sendLine("Hi server!");
+			
+			//wait for your turn
+			while(!line.equals("exit")) {
+				
+				line = receiveLine();
+				
+				if (line.equals("your turn")) {
+					MoveMsg moveMsg = new MoveMsg();
+					Turn turn = new Turn(moveMsg, this);
+					turn.begin();
+
+					//send the exit message
+					sendLine(line);
+				}
+			}
+			
+			
+			
+			
     }
 }
