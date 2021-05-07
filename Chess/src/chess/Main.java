@@ -93,8 +93,8 @@ public class Main extends JFrame implements MouseListener
 	bb02=new Bishop("BB02","Black_Bishop.png",1);
 	wq=new Queen("WQ","White_Queen.png",0);
 	bq=new Queen("BQ","Black_Queen.png",1);
-	wk=new King("WK","White_King.png",0,7,3);
-	bk=new King("BK","Black_King.png",1,0,3);
+	wk=new King("WK","White_King.png",0,7,4);
+	bk=new King("BK","Black_King.png",1,0,4);
 	wp=new Pawn[8];
 	bp=new Pawn[8];
 	for(int i=0;i<8;i++)
@@ -310,13 +310,13 @@ public class Main extends JFrame implements MouseListener
 					P=wb01;
 				else if(i==7&&j==5)
 					P=wb02;
-				else if(i==0&&j==3)
-					P=bk;
 				else if(i==0&&j==4)
+					P=bk;
+				else if(i==0&&j==3)
 					P=bq;
-				else if(i==7&&j==3)
-					P=wk;
 				else if(i==7&&j==4)
+					P=wk;
+				else if(i==7&&j==3)
 					P=wq;
 				else if(i==1)
 				P=bp[j];
@@ -664,10 +664,18 @@ public class Main extends JFrame implements MouseListener
 						c.removePiece();
 					c.setPiece(previous.getpiece());
 					
+					if(c.getpiece() instanceof King)
+						checkIfHasCastled(c);
+					
+					if(c.getpiece() instanceof Rook || c.getpiece() instanceof King)
+						c.getpiece().hasMoved = true;
+					
 					// logic for pawn promotion
 					
 					if(checkIfPossibleToPromote(c))
 						c = promotePawn(c);
+					
+					
 					
 					if (previous.ischeck())
 						previous.removecheck();
@@ -734,6 +742,48 @@ public class Main extends JFrame implements MouseListener
 		}
 	}
     
+	private void checkIfHasCastled(Cell kingCell) {
+		King kingPiece = (King) kingCell.getpiece();
+		
+		if(!kingPiece.canEvenCastle)
+			return;
+		
+		int xCoord = kingCell.x;
+		int yCoord = kingCell.y;
+		
+		if(xCoord != 0 && xCoord != 7)
+			return;
+		
+		if(yCoord != 2 && yCoord != 6)
+			return;
+		
+		handleRookMovementOnCastle(kingCell);
+		
+	}
+	
+	private void handleRookMovementOnCastle(Cell kingCell){
+		int xCoord = kingCell.x;
+		int yCoord = kingCell.y;
+		
+		if(yCoord == 2){
+			Cell rookCell = boardState[xCoord][0];
+			Piece rookPiece = rookCell.getpiece();
+			
+			rookPiece.hasMoved = true;
+			rookCell.removePiece();
+			
+			boardState[xCoord][3].setPiece(rookPiece);
+		}else{
+			Cell rookCell = boardState[7][7];
+			Piece rookPiece = rookCell.getpiece();
+			
+			rookPiece.hasMoved = true;
+			boardState[7][7].removePiece();
+			
+			boardState[xCoord][5].setPiece(rookPiece);
+		}
+	}
+
 	private boolean checkIfPossibleToPromote(Cell cellToCheck){
 		Piece chessPiece = cellToCheck.getpiece();
 		
