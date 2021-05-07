@@ -27,6 +27,19 @@ public class Player implements Serializable{
 	private Integer gamesplayed;
 	private Integer gameswon;
 	
+	/* Potential Player 3 Win Conditions
+	 *  Get 2 knights removed
+	 *  Intentionally sacrifice a Queen to an unmoved Pawn
+	 *  Manage to get a King over the midpart of the board onto the opposing side 
+	 *  Perform en passant
+	 *  Successfully castle, with the rook being able to take out an enemy piece
+	 *  Use the King to take out a non-pawn enemy piece
+	 *  Promote a pawn to Queen
+	 *  Take out the enemies Queen with a Queen
+	 *  Win another player's game for them
+	 */
+	
+	
 	//Constructor
 	public Player(String name)
 	{

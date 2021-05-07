@@ -1,5 +1,6 @@
 package chess;
 import javax.imageio.ImageIO;
+import javax.print.attribute.HashPrintJobAttributeSet;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
@@ -675,6 +676,14 @@ public class Main extends JFrame implements MouseListener
 					if(checkIfPossibleToPromote(c))
 						c = promotePawn(c);
 					
+					if(c.getpiece() instanceof Pawn){
+						if(Math.abs(previous.x - c.x) == 2)
+							((Pawn)c.getpiece()).hasJustSteppedTwoSpacesForward = true;
+						else
+							((Pawn)c.getpiece()).hasJustSteppedTwoSpacesForward = false;
+						
+						checkIfHasUsedEnPassant(c);
+					}
 					
 					
 					if (previous.ischeck())
@@ -742,6 +751,47 @@ public class Main extends JFrame implements MouseListener
 		}
 	}
     
+	private void checkIfHasUsedEnPassant(Cell pawnCellMovedTo) {
+		
+		if(pawnCellMovedTo.x != 2 && pawnCellMovedTo.x != 5)
+			return;
+		
+		Pawn pawnPiece = (Pawn) pawnCellMovedTo.getpiece();
+		
+		
+		checkIfPawnBehindAndItJustJumped(pawnCellMovedTo, pawnPiece);
+		
+	}
+
+	private void checkIfPawnBehindAndItJustJumped(Cell pawnCellMovedTo, Pawn pawnPiece) {
+		
+		if(pawnCellMovedTo.x == 2){
+			Cell cellBehindPawn = boardState[3][pawnCellMovedTo.y];
+			Piece behindPiece = cellBehindPawn.getpiece();
+			
+			if(!(behindPiece instanceof Pawn))
+				return;
+			
+			if(((Pawn) behindPiece).hasJustSteppedTwoSpacesForward){
+				Cell pawnCell = boardState[3][pawnCellMovedTo.y];
+				pawnCell.removePiece();
+			}
+			
+		}
+		else{
+			Cell cellBehindPawn = boardState[6][pawnCellMovedTo.y];
+			Piece behindPiece = cellBehindPawn.getpiece();
+			
+			if(!(behindPiece instanceof Pawn))
+				return;
+			
+			if(((Pawn) behindPiece).hasJustSteppedTwoSpacesForward){
+				Cell pawnCell = boardState[6][pawnCellMovedTo.y];
+				pawnCell.removePiece();
+			}
+		}
+	}
+
 	private void checkIfHasCastled(Cell kingCell) {
 		King kingPiece = (King) kingCell.getpiece();
 		
