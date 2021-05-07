@@ -663,9 +663,17 @@ public class Main extends JFrame implements MouseListener
 					if(c.getpiece()!=null)
 						c.removePiece();
 					c.setPiece(previous.getpiece());
+					
+					// logic for pawn promotion
+					
+					if(checkIfPossibleToPromote(c))
+						c = promotePawn(c);
+					
 					if (previous.ischeck())
 						previous.removecheck();
 					previous.removePiece();
+					
+					
 					if(getKing(chance^1).isindanger(boardState))
 					{
 						boardState[getKing(chance^1).getx()][getKing(chance^1).gety()].setcheck();
@@ -726,7 +734,33 @@ public class Main extends JFrame implements MouseListener
 		}
 	}
     
-    //Other Irrelevant abstract function. Only the Click Event is captured.
+	private boolean checkIfPossibleToPromote(Cell cellToCheck){
+		Piece chessPiece = cellToCheck.getpiece();
+		
+		if(!(chessPiece instanceof Pawn))
+			return false;
+		
+		System.out.println(cellToCheck.x != 0);
+		if(cellToCheck.x != 0 && cellToCheck.x != 7)
+			return false;
+		
+		return true;
+	}
+	
+    private Cell promotePawn(Cell cellToCheck) {
+    	Piece chessPiece = cellToCheck.getpiece();
+    	
+		
+		
+		if(chessPiece.getcolor() == 0)
+			cellToCheck.setPiece(new Queen("WQA","White_Queen.png",0));
+		else
+			cellToCheck.setPiece(new Queen("BQA","Black_Queen.png", 1));
+		
+		return cellToCheck;
+	}
+
+	//Other Irrelevant abstract function. Only the Click Event is captured.
 	@Override
 	public void mouseEntered(MouseEvent arg0) {
 		// TODO Auto-generated method stub
