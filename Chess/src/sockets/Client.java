@@ -16,12 +16,14 @@ public class Client extends Thread
     private PrintStream out;
     private BufferedReader in;
     private ChessTeam chessTeam;
+    private SocketTimer socketTimer;
     public Client( String ip, int port)
     {
 		if (port < 1024 || port > 49151) {
 			System.out.println("portnum must be between 1024 and 49151");
 			return;
 		}
+		this.socketTimer = new SocketTimer(null);
 		this.port = port;
 		this.ip = ip;
 		this.start();
@@ -89,17 +91,19 @@ public class Client extends Thread
 			
 			//wait for your turn
 			while(!line.equals("exit")) {
-				
+
 				line = receiveLine();
 				
 				if (line.equals("your turn")) {
 					MoveMsg moveMsg = new MoveMsg();
-					Turn turn = new Turn(moveMsg, this);
+					Turn turn = new Turn(moveMsg, this, socketTimer);
 					turn.begin();
 
 					//send the exit message
 					sendLine(line);
 				}
+				
+				
 			}
 			
 			

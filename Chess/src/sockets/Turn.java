@@ -8,9 +8,10 @@ public class Turn implements Runnable {
 	
 	private MoveMsg moveMsg;
 	private Client client;
-	public Turn(MoveMsg moveMsg, Client client) {
+	public Turn(MoveMsg moveMsg, Client client, SocketTimer socketTimer) {
 		this.moveMsg = moveMsg;
 		this.client = client;
+		socketTimer.setMoveMsg(moveMsg);
 		
 	}
 	

@@ -62,6 +62,11 @@ class RequestHandler
 		
     }
     
+    public void informOfMove(String outcome) {
+    	sendLine(outcome);
+    	//need to do more here?
+    }
+    
     public String takeTurn() {
 		sendLine("your turn");
 		String line = receiveLine();

@@ -97,9 +97,54 @@ public class Server extends Thread
         //obtain connections -- handle disconnects here if time
         this.getConnections();
         //connect turn logic here!
-        blackRequestHandler.takeTurn();
+        boolean gameplay = true;
+        while (gameplay) {
+        	ChessTeam nextTurn = this.takeTurns();
+        	thirdPlayerTurn();
+
+
+        	
+        }
+        
+        	
+        	
         running = false;
 
+    }
+    
+    private void thirdPlayerTurn() {
+    	//need to call a method in main or something from here to achieve this
+    	//must send the move to both of the other players
+
+
+    	
+    }
+    
+    //Take turns for the normal 2 players
+    //returns the next team after the third player's turn
+    private ChessTeam takeTurns() {
+    	String outcome = "placeholder";
+        ChessTeam nextTurn = ChessTeam.BLACK;
+        while(!outcome.equals(SocketTimer.OUT_OF_TIME)) {
+        	if (nextTurn == ChessTeam.BLACK) {
+        		outcome = blackRequestHandler.takeTurn();
+        		//inform the other player of the move taken
+        		whiteRequestHandler.informOfMove(outcome);
+        		nextTurn = ChessTeam.WHITE;
+        		
+        	}
+        	else if (nextTurn == ChessTeam.WHITE) {
+        		outcome = whiteRequestHandler.takeTurn();
+        		blackRequestHandler.informOfMove(outcome);
+        		nextTurn = ChessTeam.BLACK;
+        	}
+        	
+        	
+
+        }
+        //should still be the next turn in sequence even if timeout
+        return nextTurn;
+    	
     }
 
 
