@@ -33,7 +33,6 @@ import java.util.ListIterator;
 
 public class Main extends JFrame implements MouseListener
 {
-	//start server for testing!
 	private static final long serialVersionUID = 1L;
 	
 	//Variable Declaration
