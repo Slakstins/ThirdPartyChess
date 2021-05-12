@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import chess.Main;
+
 
 public class Server extends Thread
 {
@@ -69,7 +71,6 @@ public class Server extends Thread
                       
                       
                       
-                      break;
                 }
                 else if (whiteSocket == null) {
                 	  whiteSocket = serverSocket.accept();
@@ -98,8 +99,10 @@ public class Server extends Thread
         this.getConnections();
         //connect turn logic here!
         boolean gameplay = true;
+        //set team that goes first. Use black for now for testing
+        ChessTeam nextTurn = ChessTeam.WHITE;
         while (gameplay) {
-        	ChessTeam nextTurn = this.takeTurns();
+        	nextTurn = this.takeTurns(nextTurn);
         	thirdPlayerTurn();
 
 
@@ -114,28 +117,48 @@ public class Server extends Thread
     
     private void thirdPlayerTurn() {
     	//need to call a method in main or something from here to achieve this
+    	Main.myTurn = true;
+
     	//must send the move to both of the other players
 
 
     	
     }
     
+    //make the move in the format "x,y" in main
+    public static void makeClick(String outcome) {
+    	String[] coords = new String[4];
+		coords = outcome.split(",");
+		int x1 = Integer.parseInt(coords[0]);
+		int y1 = Integer.parseInt(coords[1]);
+		int x2 = Integer.parseInt(coords[2]);
+		int y2 = Integer.parseInt(coords[3]);
+		System.out.println("moveMabye: " + x1 + ", " + y1 + " to " + x2 + ", " + y2);
+		Main.moveMaybe(x1, y1, true);
+		Main.moveMaybe(x2, y2, true);
+    }
+    
     //Take turns for the normal 2 players
     //returns the next team after the third player's turn
-    private ChessTeam takeTurns() {
+    private ChessTeam takeTurns(ChessTeam nextTurn) {
     	String outcome = "placeholder";
-        ChessTeam nextTurn = ChessTeam.BLACK;
         while(!outcome.equals(SocketTimer.OUT_OF_TIME)) {
         	if (nextTurn == ChessTeam.BLACK) {
         		outcome = blackRequestHandler.takeTurn();
+
+        		// make the received click in MAIN
+        		makeClick(outcome);
+        	
         		//inform the other player of the move taken
-        		whiteRequestHandler.informOfMove(outcome);
+        		whiteRequestHandler.informOfClick("move:" + outcome);
         		nextTurn = ChessTeam.WHITE;
         		
         	}
         	else if (nextTurn == ChessTeam.WHITE) {
         		outcome = whiteRequestHandler.takeTurn();
-        		blackRequestHandler.informOfMove(outcome);
+        		// make the received move in MAIN
+        		makeClick(outcome);
+        		blackRequestHandler.informOfClick("move:" + outcome);
         		nextTurn = ChessTeam.BLACK;
         	}
         	

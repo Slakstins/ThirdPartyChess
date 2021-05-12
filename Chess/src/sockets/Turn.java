@@ -2,40 +2,45 @@ package sockets;
 
 import java.util.Scanner;
 
+import chess.Main;
 import chess.Time;
 
 public class Turn implements Runnable {
 	
 	private MoveMsg moveMsg;
-	private Client client;
-	public Turn(MoveMsg moveMsg, Client client, SocketTimer socketTimer) {
+	private SocketTimer socketTimer;
+	public Turn(MoveMsg moveMsg) {
 		this.moveMsg = moveMsg;
-		this.client = client;
+		this.socketTimer = new SocketTimer(moveMsg);
 		socketTimer.setMoveMsg(moveMsg);
 		
 	}
 	
-	public synchronized void begin() {
+	public synchronized String begin() {
 		
+		System.out.println("turn started");
 		String line = "placeholder";
-		SocketTimer socketTimer = new SocketTimer(moveMsg);
 		Thread turnThread = new Thread(this);
 		turnThread.start();
 
-		socketTimer.start();
+		if (!socketTimer.getStarted()) {
+			socketTimer.start();
+			socketTimer.setStarted(true);
+		} else {
+			socketTimer.resume();
+		}
 		//wait for either the turn time to expire or for the turn to be made
 		line = moveMsg.getMessage(); //getMessage() has a wait() in it
 		System.out.println(line);
 		//WILL NEED TO HANDLE ACTUAL CHESS GAME THREAD HERE
 		if (!line.equals(SocketTimer.OUT_OF_TIME)) {
-			//the thread didn't finish sleeping, so wake it up and kill it
-			socketTimer.interrupt();
+			//the thread didn't finish sleeping, so wake it up and pause it
+			socketTimer.suspend();
 		} else {
-			//turn time ran out, so kill the chess game thread
+			//turn time ran out, so kill the chess game thread 
 			turnThread.interrupt();
 		}
-		client.sendLine(line);
-		client.sendLine("exit");
+		return line;
 
 		
 	}
@@ -46,19 +51,16 @@ public class Turn implements Runnable {
 	
 	public void run() {
 		//play the actual chess game
+		System.out.println("playing turn!");
+		
+		Main.myTurn = true;
+
+		//communicate the turn from Main through moveMsg. It will wait for the outcome from Main
+		Main.moveMsg = moveMsg;
+		
+
 		
 		
-		
-		
-		//replace all of this. 
-		System.out.println("made it!");
-		Scanner scanner = new Scanner(System.in);
-		String line = "placeholder";
-		while (!line.equals("exit")) {
-			line = scanner.nextLine();
-			moveMsg.setMessage("Move made: " + line); 
-		}
-		scanner.close();
 
 		
 	}

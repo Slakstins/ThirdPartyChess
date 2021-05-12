@@ -1,10 +1,11 @@
 package sockets;
 
 public class SocketTimer extends Thread{
-	public static int TURNTIME = 5000;
+	public static int TURNTIME = 1000000;
 	public long timeSlept;
 	private MoveMsg moveMsg;
 	public static final String OUT_OF_TIME = "TIME ran out!";
+	private boolean started;
 	public SocketTimer(MoveMsg moveMsg) {
 		timeSlept = 0;
 		this.moveMsg = moveMsg;
@@ -19,6 +20,7 @@ public class SocketTimer extends Thread{
 				Thread.sleep(TURNTIME / 100);
 				timeSlept += TURNTIME / 100;
 			}
+			moveMsg.setMessage(OUT_OF_TIME);
 		} catch (InterruptedException e) {
 			//NOTE, IF THERE ARE EVER WEIRD BUGS with inconsistent state of moveMsg,
 			//this may be the culprit. Interrupting can be glitchy supposedly - better
@@ -26,11 +28,17 @@ public class SocketTimer extends Thread{
 			// TODO Auto-generated catch block
 			Thread.currentThread().interrupt();
 		}
-		moveMsg.setMessage(OUT_OF_TIME);
 		
 	}
 	public void setMoveMsg(MoveMsg moveMsg) {
 		this.moveMsg = moveMsg;
 	}
 
+	public void setStarted(boolean bool) {
+		this.started = bool;
+	}
+	
+	public boolean getStarted() {
+		return started;
+	}
 }

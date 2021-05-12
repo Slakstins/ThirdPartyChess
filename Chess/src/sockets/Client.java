@@ -7,6 +7,7 @@ import java.io.PrintStream;
 import java.net.Socket;
 import java.util.Scanner;
 
+import chess.Main;
 import chess.Time;
 
 public class Client extends Thread
@@ -15,15 +16,12 @@ public class Client extends Thread
 	private String ip;
     private PrintStream out;
     private BufferedReader in;
-    private ChessTeam chessTeam;
-    private SocketTimer socketTimer;
     public Client( String ip, int port)
     {
 		if (port < 1024 || port > 49151) {
 			System.out.println("portnum must be between 1024 and 49151");
 			return;
 		}
-		this.socketTimer = new SocketTimer(null);
 		this.port = port;
 		this.ip = ip;
 		this.start();
@@ -57,11 +55,14 @@ public class Client extends Thread
     }
     
     public void sendLine(String line) {
+    	System.out.println("sending... " + line);
     	out.println(line);
     	out.flush();
+    	System.out.println("sent: " + line);
     }
     
     public String receiveLine() {
+    	System.out.println("receiving...");
     	String line = null;
     	try {
 			line = in.readLine();
@@ -69,22 +70,22 @@ public class Client extends Thread
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+    	System.out.println("received: " + line);
 		return line;
     }
 
     private void protocol(BufferedReader in, PrintStream out) {
 
-            String line = null;
 			//HAND SHAKE
 			// Read greeting from the server 
-			line = receiveLine();
+			String line = receiveLine();
+			//receive which team this side is
 			if (line.equals("black")) {
-				this.chessTeam = ChessTeam.BLACK;
+				Main.setTeam(ChessTeam.BLACK);
 			}
-			if (line.equals("white")) {
-				this.chessTeam = ChessTeam.WHITE;
+			else if (line.equals("white")) {
+				Main.setTeam(ChessTeam.WHITE);
 			}
-			System.out.println("Received: " + line);
 
 			//send greeting to the server
 			sendLine("Hi server!");
@@ -95,12 +96,23 @@ public class Client extends Thread
 				line = receiveLine();
 				
 				if (line.equals("your turn")) {
-					MoveMsg moveMsg = new MoveMsg();
-					Turn turn = new Turn(moveMsg, this, socketTimer);
-					turn.begin();
 
-					//send the exit message
-					sendLine(line);
+					MoveMsg moveMsg = new MoveMsg();
+					Turn turn = new Turn(moveMsg);
+					String outcome = turn.begin();
+					this.sendLine(outcome);
+
+				}
+				
+				if (line.startsWith("move:")) {
+					String move = line.substring(5);
+					Server.makeClick(move);
+					
+				}
+				
+				if (line.equals(SocketTimer.OUT_OF_TIME)) {
+					//DO SOMETHING
+					
 				}
 				
 				

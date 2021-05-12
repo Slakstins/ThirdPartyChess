@@ -27,11 +27,14 @@ class RequestHandler
     }
     
     private void sendLine(String line) {
+    	System.out.println("sending... " + line);
 		out.println(line);
 		out.flush();
+    	System.out.println("sent: " + line);
     }
     
     private String receiveLine() {
+    	System.out.println("receiving...");
     	String line = null;;
 		try {
 			line = in.readLine();
@@ -42,6 +45,8 @@ class RequestHandler
 		if (line == null) {
 			System.out.println("error receiving line");
 		}
+    	System.out.println("received: " + line);
+
     	return line;
     }
     
@@ -62,15 +67,15 @@ class RequestHandler
 		
     }
     
-    public void informOfMove(String outcome) {
+    public void informOfClick(String outcome) {
     	sendLine(outcome);
     	//need to do more here?
     }
     
     public String takeTurn() {
+    	System.out.println("starting turn: " + chessTeam.name());
 		sendLine("your turn");
 		String line = receiveLine();
-		System.out.println("received: " + line);
 		return line;
     	
     }

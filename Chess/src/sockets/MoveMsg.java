@@ -1,5 +1,7 @@
 package sockets;
 
+import chess.Main;
+
 public class MoveMsg {
 	private String message = null; 
 	public MoveMsg() {
@@ -17,6 +19,7 @@ public class MoveMsg {
 	}
 	public synchronized void setMessage(String message) {
 		this.message = message;
+		System.out.println("message is: " + message);
 		notify();
 	}
 	

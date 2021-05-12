@@ -6,7 +6,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import pieces.*;
+import sockets.ChessTeam;
 import sockets.Client;
+import sockets.MoveMsg;
 import sockets.Server;
 
 import java.awt.*;
@@ -36,6 +38,7 @@ public class Main extends JFrame implements MouseListener
 	private static final long serialVersionUID = 1L;
 	
 	//Variable Declaration
+	//private static final Main instance = new Main();
 	private static final int Height=700;
 	private static final int Width=1110;
 	private static Rook wr01,wr02,br01,br02;
@@ -44,68 +47,103 @@ public class Main extends JFrame implements MouseListener
 	private static Pawn wp[],bp[];
 	private static Queen wq,bq;
 	private static King wk,bk;
-	private Cell c,previous;
-	private int chance=0;
-	private Cell boardState[][];
-	private ArrayList<Cell> destinationlist = new ArrayList<Cell>();
-	private Player White=null,Black=null;
-	private JPanel board=new JPanel(new GridLayout(8,8));
-	private JPanel wdetails=new JPanel(new GridLayout(3,3));
-	private JPanel bdetails=new JPanel(new GridLayout(3,3));
+	private static Cell c;
+
+	private static Cell previous;
+	private static int chance=0;
+	public static Cell boardState[][];
+	private static ArrayList<Cell> destinationlist = new ArrayList<Cell>();
+	private static Player White=null;
+
+	private static Player Black=null;
+	private static JPanel board=new JPanel(new GridLayout(8,8));
+	private static JPanel wdetails=new JPanel(new GridLayout(3,3));
+	private static JPanel bdetails=new JPanel(new GridLayout(3,3));
 	private JPanel wcombopanel=new JPanel();
 	private JPanel bcombopanel=new JPanel();
-	private JPanel controlPanel,WhitePlayer,BlackPlayer,temp,displayTime,showPlayer,time;
-	private JSplitPane split;
-	private JLabel label,mov;
+	private static JPanel controlPanel;
+
+	private static JPanel WhitePlayer;
+
+	private static JPanel BlackPlayer;
+
+	private static JPanel temp;
+
+	private static JPanel displayTime;
+
+	private static JPanel showPlayer;
+
+	private JPanel time;
+	private static JSplitPane split;
+	private static JLabel label;
+
+	private static JLabel mov;
 	private static JLabel CHNC;
-	private Time timer;
+	private static Time timer;
 	public static Main Mainboard;
-	private boolean selected=false,end=false;
+	private boolean selected=false;
+
+	private static boolean end=false;
 	private Container content;
 	private ArrayList<Player> wplayer,bplayer;
 	private ArrayList<String> Wnames=new ArrayList<String>();
 	private ArrayList<String> Bnames=new ArrayList<String>();
 	private JComboBox<String> wcombo,bcombo;
-	private String wname=null,bname=null,winner=null;
+	private String wname=null,bname=null;
+
+	private static String winner=null;
 	static String move;
 	private Player tempPlayer;
 	private JScrollPane wscroll,bscroll;
 	private String[] WNames={},BNames={};
-	private JSlider timeSlider;
+	private static JSlider timeSlider;
 	private BufferedImage image;
-	private Button start,wselect,bselect,WNewPlayer,BNewPlayer;
+	private static Button start;
+
+	private static Button wselect;
+
+	private static Button bselect;
+
+	private static Button WNewPlayer;
+
+	private static Button BNewPlayer;
 	public static int timeRemaining=60;
+	public static boolean myTurn = false;
+	private static ChessTeam player = null;
+	public static MoveMsg moveMsg = null;;
+
+	
 	public static void main(String[] args){
 	
-	//variable initialization
-	wr01=new Rook("WR01","White_Rook.png",0);
-	wr02=new Rook("WR02","White_Rook.png",0);
-	br01=new Rook("BR01","Black_Rook.png",1);
-	br02=new Rook("BR02","Black_Rook.png",1);
-	wk01=new Knight("WK01","White_Knight.png",0);
-	wk02=new Knight("WK02","White_Knight.png",0);
-	bk01=new Knight("BK01","Black_Knight.png",1);
-	bk02=new Knight("BK02","Black_Knight.png",1);
-	wb01=new Bishop("WB01","White_Bishop.png",0);
-	wb02=new Bishop("WB02","White_Bishop.png",0);
-	bb01=new Bishop("BB01","Black_Bishop.png",1);
-	bb02=new Bishop("BB02","Black_Bishop.png",1);
-	wq=new Queen("WQ","White_Queen.png",0);
-	bq=new Queen("BQ","Black_Queen.png",1);
-	wk=new King("WK","White_King.png",0,7,3);
-	bk=new King("BK","Black_King.png",1,0,3);
-	wp=new Pawn[8];
-	bp=new Pawn[8];
-	for(int i=0;i<8;i++)
-	{
-		wp[i]=new Pawn("WP0"+(i+1),"White_Pawn.png",0);
-		bp[i]=new Pawn("BP0"+(i+1),"Black_Pawn.png",1);
-	}
-	
-	//Setting up the board
-	Mainboard = new Main();
-	Mainboard.setVisible(true);	
-	Mainboard.setResizable(false);
+		//variable initialization
+		wr01=new Rook("WR01","White_Rook.png",0);
+		wr02=new Rook("WR02","White_Rook.png",0);
+		br01=new Rook("BR01","Black_Rook.png",1);
+		br02=new Rook("BR02","Black_Rook.png",1);
+		wk01=new Knight("WK01","White_Knight.png",0);
+		wk02=new Knight("WK02","White_Knight.png",0);
+		bk01=new Knight("BK01","Black_Knight.png",1);
+		bk02=new Knight("BK02","Black_Knight.png",1);
+		wb01=new Bishop("WB01","White_Bishop.png",0);
+		wb02=new Bishop("WB02","White_Bishop.png",0);
+		bb01=new Bishop("BB01","Black_Bishop.png",1);
+		bb02=new Bishop("BB02","Black_Bishop.png",1);
+		wq=new Queen("WQ","White_Queen.png",0);
+		bq=new Queen("BQ","Black_Queen.png",1);
+		wk=new King("WK","White_King.png",0,7,3);
+		bk=new King("BK","Black_King.png",1,0,3);
+		wp=new Pawn[8];
+		bp=new Pawn[8];
+		for(int i=0;i<8;i++)
+		{
+			wp[i]=new Pawn("WP0"+(i+1),"White_Pawn.png",0);
+			bp[i]=new Pawn("BP0"+(i+1),"Black_Pawn.png",1);
+		}
+		
+		//Setting up the board
+		Mainboard = new Main();
+		Mainboard.setVisible(true);	
+		Mainboard.setResizable(false);
 	}
 	
 	//Constructor
@@ -187,6 +225,7 @@ public class Main extends JFrame implements MouseListener
 					System.out.println("port must be number");
 				}
 				Server server = new Server(portNum);
+				Main.setTeam(ChessTeam.THIRD);
 			}
 			
 		});	
@@ -408,9 +447,16 @@ public class Main extends JFrame implements MouseListener
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 	
+	public static void setTeam(ChessTeam team) {
+		player = team;
+		controlPanel.add(new JLabel(team.name()));
+		System.out.println("label added " + team.name());
+	}
+	
+	
 	// A function to change the chance from White Player to Black Player or vice verse
 	// It is made public because it is to be accessed in the Time Class
-	public void changechance()
+	public static void changechance()
 	{
 		if (boardState[getKing(chance).getx()][getKing(chance).gety()].ischeck())
 		{
@@ -438,7 +484,7 @@ public class Main extends JFrame implements MouseListener
 	}
 	
 	//A function to retrieve the Black King or White King
-	private King getKing(int color)
+	private static King getKing(int color)
 	{
 		if (color==0)
 			return wk;
@@ -447,7 +493,7 @@ public class Main extends JFrame implements MouseListener
 	}
 	
 	//A function to clean the highlights of possible destination cells
-    private void cleandestinations(ArrayList<Cell> destlist)      //Function to clear the last move's destinations
+    private static void cleandestinations(ArrayList<Cell> destlist)      //Function to clear the last move's destinations
     {
     	ListIterator<Cell> it = destlist.listIterator();
     	while(it.hasNext())
@@ -455,7 +501,7 @@ public class Main extends JFrame implements MouseListener
     }
     
     //A function that indicates the possible moves by highlighting the Cells
-    private void highlightdestinations(ArrayList<Cell> destlist)
+    private static void highlightdestinations(ArrayList<Cell> destlist)
     {
     	ListIterator<Cell> it = destlist.listIterator();
     	while(it.hasNext())
@@ -464,7 +510,7 @@ public class Main extends JFrame implements MouseListener
     
     
   //Function to check if the king will be in danger if the given move is made
-    private boolean willkingbeindanger(Cell fromcell,Cell tocell)
+    private static boolean willkingbeindanger(Cell fromcell,Cell tocell)
     {
     	Cell newboardstate[][] = new Cell[8][8];
     	for(int i=0;i<8;i++)
@@ -488,7 +534,7 @@ public class Main extends JFrame implements MouseListener
     }
     
     //A function to eliminate the possible moves that will put the King in danger
-    private ArrayList<Cell> filterdestination (ArrayList<Cell> destlist, Cell fromcell)
+    private static ArrayList<Cell> filterdestination (ArrayList<Cell> destlist, Cell fromcell)
     {
     	ArrayList<Cell> newlist = new ArrayList<Cell>();
     	Cell newboardstate[][] = new Cell[8][8];
@@ -521,7 +567,7 @@ public class Main extends JFrame implements MouseListener
     }
     
     //A Function to filter the possible moves when the king of the current player is under Check 
-    private ArrayList<Cell> incheckfilter (ArrayList<Cell> destlist, Cell fromcell, int color)
+    private static ArrayList<Cell> incheckfilter (ArrayList<Cell> destlist, Cell fromcell, int color)
     {
     	ArrayList<Cell> newlist = new ArrayList<Cell>();
     	Cell newboardstate[][] = new Cell[8][8];
@@ -553,7 +599,7 @@ public class Main extends JFrame implements MouseListener
     }
     
     //A function to check if the King is check-mate. The Game Ends if this function returns true.
-    public boolean checkmate(int color)
+    public static boolean checkmate(int color)
     {
     	ArrayList<Cell> dlist = new ArrayList<Cell>();
     	for(int i=0;i<8;i++)
@@ -575,7 +621,7 @@ public class Main extends JFrame implements MouseListener
 	
     
     @SuppressWarnings("deprecation")
-	private void gameend()
+	private static void gameend()
     {
     	cleandestinations(destinationlist);
     	displayTime.disable();
@@ -618,13 +664,18 @@ public class Main extends JFrame implements MouseListener
 		Mainboard.setResizable(false);
     }
     
-    //These are the abstract function of the parent class. Only relevant method here is the On-Click Fuction
-    //which is called when the user clicks on a particular cell
-	@Override
-	public void mouseClicked(MouseEvent arg0){
-		// TODO Auto-generated method stub
-		c=(Cell)arg0.getSource();
-		if (previous==null)
+    
+    //call this from the mouseclick. Makes it easier to call this code manually with sent moves
+    public static void moveMaybe(int x, int y, boolean overrideSequence) {
+
+    	if (!overrideSequence) {
+    		System.out.println("my turn = " + myTurn);
+    	}
+    	if (!myTurn && !overrideSequence) {
+    		return;
+    	}
+    	c = boardState[x][y];
+    	if (previous==null)
 		{
 			if(c.getpiece()!=null)
 			{
@@ -657,8 +708,13 @@ public class Main extends JFrame implements MouseListener
 			}
 			else if(c.getpiece()==null||previous.getpiece().getcolor()!=c.getpiece().getcolor())
 			{
+
 				if(c.ispossibledestination())
 				{
+					//SET THE MESSAGE FOR THE CLIENT SERVER CONNECTION
+				    if (!overrideSequence && player != ChessTeam.THIRD) {
+						moveMsg.setMessage(previous.x + "," + previous.y +"," + x + "," + y);
+					}
 					if(c.getpiece()!=null)
 						c.removePiece();
 					c.setPiece(previous.getpiece());
@@ -684,6 +740,9 @@ public class Main extends JFrame implements MouseListener
 						((King)c.getpiece()).sety(c.y);
 					}
 					changechance();
+					//teams switch, so send the move! SEND MOVE
+
+
 					if(!end)
 					{
 						timer.reset();
@@ -723,6 +782,23 @@ public class Main extends JFrame implements MouseListener
 			((King)c.getpiece()).setx(c.x);
 			((King)c.getpiece()).sety(c.y);
 		}
+		
+		
+		
+		//use the coordinates to form a string to communicate what was clicked
+
+
+    	
+    }
+    
+    //These are the abstract function of the parent class. Only relevant method here is the On-Click Fuction
+    //which is called when the user clicks on a particular cell
+	@Override
+	public void mouseClicked(MouseEvent arg0){
+		// TODO Auto-generated method stub
+		c=(Cell)arg0.getSource();
+		moveMaybe(c.x, c.y, false);
+		
 	}
     
     //Other Irrelevant abstract function. Only the Click Event is captured.
