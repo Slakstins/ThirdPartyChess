@@ -27,7 +27,7 @@ class RequestHandler
 
     }
     
-    private void sendLine(String line) {
+    public void sendLine(String line) {
     	System.out.println("sending... " + line);
 		out.println(line);
 		out.flush();

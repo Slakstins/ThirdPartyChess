@@ -50,7 +50,7 @@ public class Main extends JFrame implements MouseListener
 	private static King wk,bk;
 	private static Cell c;
 
-	private static Cell previous;
+	public static Cell previous;
 	private static int chance=0;
 	public static Cell boardState[][];
 	private static ArrayList<Cell> destinationlist = new ArrayList<Cell>();
@@ -714,7 +714,7 @@ public class Main extends JFrame implements MouseListener
 				if(c.ispossibledestination())
 				{
 					//SET THE MESSAGE FOR THE CLIENT SERVER CONNECTION
-				    if (!overrideSequence && player != ChessTeam.THIRD) {
+				    if (!overrideSequence) {
 						moveMsg.setMessage(previous.x + "," + previous.y +"," + x + "," + y);
 					}
 					if(c.getpiece()!=null)

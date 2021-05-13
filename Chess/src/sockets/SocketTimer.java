@@ -1,13 +1,12 @@
 package sockets;
 
 public class SocketTimer extends Thread{
-	public static int TURNTIME = 1000000;
+	public static int TURNTIME = 20000;
 	public long timeSlept;
 	private MoveMsg moveMsg;
 	public static final String OUT_OF_TIME = "TIME ran out!";
-	private boolean started;
-	public SocketTimer(MoveMsg moveMsg) {
-		timeSlept = 0;
+	public SocketTimer(MoveMsg moveMsg, long time) {
+		timeSlept = time;
 		this.moveMsg = moveMsg;
 	}
 	
@@ -30,15 +29,13 @@ public class SocketTimer extends Thread{
 		}
 		
 	}
-	public void setMoveMsg(MoveMsg moveMsg) {
-		this.moveMsg = moveMsg;
+	
+	
+	public long stopTimer() {
+		this.interrupt();
+		return timeSlept;
+		
 	}
 
-	public void setStarted(boolean bool) {
-		this.started = bool;
-	}
 	
-	public boolean getStarted() {
-		return started;
-	}
 }

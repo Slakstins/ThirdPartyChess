@@ -118,7 +118,13 @@ public class Server extends Thread
     
     private void thirdPlayerTurn() {
     	//need to call a method in main or something from here to achieve this
+
     	Main.myTurn = true;
+		Turn turn = new Turn(0);
+		String outcome = turn.begin();
+		blackRequestHandler.sendLine(outcome);
+		whiteRequestHandler.sendLine(outcome);
+
 
     	//must send the move to both of the other players
 
@@ -148,19 +154,23 @@ public class Server extends Thread
         		outcome = blackRequestHandler.takeTurn();
 
         		// make the received click in MAIN
-        		makeClick(outcome);
         	
         		//inform the other player of the move taken
-        		whiteRequestHandler.informOfClick("move:" + outcome);
+        		whiteRequestHandler.informOfClick(outcome);
         		nextTurn = ChessTeam.WHITE;
         		
         	}
         	else if (nextTurn == ChessTeam.WHITE) {
         		outcome = whiteRequestHandler.takeTurn();
         		// make the received move in MAIN
-        		makeClick(outcome);
-        		blackRequestHandler.informOfClick("move:" + outcome);
+        		blackRequestHandler.informOfClick(outcome);
         		nextTurn = ChessTeam.BLACK;
+        	}
+        	//check to see if there was a timeout
+        	if (outcome.equals(SocketTimer.OUT_OF_TIME)) {
+        		break;
+        	} else {
+        		makeClick(outcome);
         	}
         	
         	

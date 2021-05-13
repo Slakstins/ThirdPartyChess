@@ -90,6 +90,7 @@ public class Client extends Thread
 			//send greeting to the server
 			sendLine("Hi server!");
 			
+			Turn prevTurn = null;
 			//wait for your turn
 			while(!line.equals("exit")) {
 
@@ -97,21 +98,31 @@ public class Client extends Thread
 				
 				if (line.equals("your turn")) {
 
-					MoveMsg moveMsg = new MoveMsg();
-					Turn turn = new Turn(moveMsg);
+					long turnTime = 0;
+					if (prevTurn != null) {
+						 turnTime = prevTurn.getTimeLeft();
+					}
+					Turn turn = new Turn(turnTime);
+					//waits for outcome
 					String outcome = turn.begin();
+					if (outcome.equals(SocketTimer.OUT_OF_TIME)) {
+						prevTurn = null;
+					} else {
+						prevTurn = turn;
+						
+					}
 					this.sendLine(outcome);
 
 				}
-				
-				if (line.startsWith("move:")) {
-					String move = line.substring(5);
-					Server.makeClick(move);
+
+				else if (line.equals(SocketTimer.OUT_OF_TIME)) {
+					//DO SOMETHING
 					
 				}
 				
-				if (line.equals(SocketTimer.OUT_OF_TIME)) {
-					//DO SOMETHING
+				
+				else {
+					Server.makeClick(line);
 					
 				}
 				

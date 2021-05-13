@@ -13,7 +13,12 @@ public class MoveMsg {
 			System.out.println("after wait");
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			try {
+				wait();
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
 		return message;
 	}
@@ -21,6 +26,7 @@ public class MoveMsg {
 		this.message = message;
 		System.out.println("message is: " + message);
 		notify();
+		Main.myTurn = false;
 	}
 	
 	
