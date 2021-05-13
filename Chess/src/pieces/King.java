@@ -7,6 +7,9 @@ import chess.Cell;
 public class King extends Piece{
 	
 	private int x,y; //Extra variables for King class to keep a track of king's position
+	public boolean hasCastledWithLeftRook = false;
+	public boolean hasCastledWithRightRook = false;
+	public boolean canEvenCastle = false;
 	
 	//King Constructor
 	public King(String i,String p,int c,int x,int y)
@@ -40,17 +43,159 @@ public class King extends Piece{
 	{
 		//King can move only one step. So all the adjacent 8 cells have been considered.
 		possiblemoves.clear();
+		
+		checkIfCanCastle(possiblemoves, state);
+		
+		
+		if(possiblemoves.size() == 0)
+			canEvenCastle = false;
+		else
+			canEvenCastle = true;
+		
 		int posx[]={x,x,x+1,x+1,x+1,x-1,x-1,x-1};
 		int posy[]={y-1,y+1,y-1,y,y+1,y-1,y,y+1};
 		for(int i=0;i<8;i++)
 			if((posx[i]>=0&&posx[i]<8&&posy[i]>=0&&posy[i]<8))
 				if((state[posx[i]][posy[i]].getpiece()==null||state[posx[i]][posy[i]].getpiece().getcolor()!=this.getcolor()))
 					possiblemoves.add(state[posx[i]][posy[i]]);
+				
 		return possiblemoves;
 	}
 	
 	
 	
+	private void checkIfCanCastle(ArrayList<Cell> possibleMoves, Cell[][] state) {
+		
+		if(this.hasMoved || isindanger(state))
+			return;
+		
+		// white king
+		if(this.getcolor() == 0){
+			checkForWhiteKing(possibleMoves, state);
+		}
+		else{
+			checkForBlackKing(possibleMoves, state);
+		}
+		
+		return;
+		
+	}
+
+	private void checkForBlackKing(ArrayList<Cell> possibleMoves, Cell[][] state) {
+		Piece leftRook = state[0][0].getpiece();
+		Piece rightRook = state[0][7].getpiece();
+		
+		checkBlackKingLeftRook(leftRook, possibleMoves, state);
+		checkBlackKingRightRook(rightRook, possibleMoves, state);
+		
+		
+	}
+
+	private void checkBlackKingRightRook(Piece rightRook, ArrayList<Cell> possibleMoves, Cell[][] state) {
+		if(rightRook == null)
+			return;
+		
+		if(!(rightRook instanceof Rook))
+			return;
+		
+		if(rightRook.hasMoved)
+			return;
+		
+		Cell rightBishopCell = state[0][5];
+		Cell rightKnightCell = state[0][6];
+		
+		if(rightBishopCell.getpiece() != null || rightKnightCell.getpiece() != null)
+			return;
+		
+		if(isindanger(state, 0, 5) || isindanger(state, 0, 6))
+			return;
+		
+		possiblemoves.add(state[0][6]);
+		
+		
+	}
+
+	private void checkBlackKingLeftRook(Piece leftRook, ArrayList<Cell> possibleMoves, Cell[][] state) {
+		if(leftRook == null)
+			return;
+		
+		if(!(leftRook instanceof Rook))
+			return;
+		
+		if(leftRook.hasMoved)
+			return;
+		
+		Cell leftBishopCell = state[0][2];
+		Cell leftKnightCell = state[0][1];
+		
+		if(leftBishopCell.getpiece() != null || leftKnightCell.getpiece() != null)
+			return;
+		
+		if(isindanger(state, 0, 2) || isindanger(state, 0, 3))
+			return;
+		
+		possiblemoves.add(state[0][2]);
+		
+	}
+
+	private void checkForWhiteKing(ArrayList<Cell> possibleMoves, Cell[][] state) {
+		Piece leftRook = state[7][0].getpiece();
+		Piece rightRook = state[7][7].getpiece();
+		
+		checkWhiteKingLeftRook(leftRook, possibleMoves, state);
+		checkWhiteKingRightRook(rightRook, possibleMoves, state);
+		
+	}
+
+	private void checkWhiteKingRightRook(Piece rightRook, ArrayList<Cell> possibleMoves, Cell[][] state) {
+		if(rightRook == null)
+			return;
+		
+		if(!(rightRook instanceof Rook))
+			return;
+		
+		if(rightRook.hasMoved)
+			return;
+		
+		Cell rightBishopCell = state[7][5];
+		Cell rightKnightCell = state[7][6];
+		
+		if(rightBishopCell.getpiece() != null || rightKnightCell.getpiece() != null)
+			return;
+		
+		if(isindanger(state, 7, 5) || isindanger(state, 7, 6))
+			return;
+		
+		possiblemoves.add(state[7][6]);
+		
+		
+	}
+
+	private void checkWhiteKingLeftRook(Piece leftRook, ArrayList<Cell> possibleMoves, Cell[][] state) {
+		if(leftRook == null)
+			return;
+		
+		if(!(leftRook instanceof Rook))
+			return;
+		
+		if(leftRook.hasMoved)
+			return;
+		
+		Cell leftBishopCell = state[7][2];
+		Cell leftKnightCell = state[7][1];
+		
+		if(leftBishopCell.getpiece() != null || leftKnightCell.getpiece() != null)
+			return;
+		
+		if(isindanger(state, 7, 2) || isindanger(state, 7, 3))
+			return;
+		
+		possiblemoves.add(state[7][2]);
+		
+		
+		
+	}
+
 	//Function to check if king is under threat
 	//It checks whether there is any piece of opposite color that can attack king for a given board state
 	public boolean isindanger(Cell state[][])

@@ -1,5 +1,6 @@
 package chess;
 import javax.imageio.ImageIO;
+import javax.print.attribute.HashPrintJobAttributeSet;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
@@ -115,35 +116,36 @@ public class Main extends JFrame implements MouseListener
 	
 	public static void main(String[] args){
 	
-		//variable initialization
-		wr01=new Rook("WR01","White_Rook.png",0);
-		wr02=new Rook("WR02","White_Rook.png",0);
-		br01=new Rook("BR01","Black_Rook.png",1);
-		br02=new Rook("BR02","Black_Rook.png",1);
-		wk01=new Knight("WK01","White_Knight.png",0);
-		wk02=new Knight("WK02","White_Knight.png",0);
-		bk01=new Knight("BK01","Black_Knight.png",1);
-		bk02=new Knight("BK02","Black_Knight.png",1);
-		wb01=new Bishop("WB01","White_Bishop.png",0);
-		wb02=new Bishop("WB02","White_Bishop.png",0);
-		bb01=new Bishop("BB01","Black_Bishop.png",1);
-		bb02=new Bishop("BB02","Black_Bishop.png",1);
-		wq=new Queen("WQ","White_Queen.png",0);
-		bq=new Queen("BQ","Black_Queen.png",1);
-		wk=new King("WK","White_King.png",0,7,3);
-		bk=new King("BK","Black_King.png",1,0,3);
-		wp=new Pawn[8];
-		bp=new Pawn[8];
-		for(int i=0;i<8;i++)
-		{
-			wp[i]=new Pawn("WP0"+(i+1),"White_Pawn.png",0);
-			bp[i]=new Pawn("BP0"+(i+1),"Black_Pawn.png",1);
-		}
-		
-		//Setting up the board
-		Mainboard = new Main();
-		Mainboard.setVisible(true);	
-		Mainboard.setResizable(false);
+
+	//variable initialization
+	wr01=new Rook("WR01","White_Rook.png",0);
+	wr02=new Rook("WR02","White_Rook.png",0);
+	br01=new Rook("BR01","Black_Rook.png",1);
+	br02=new Rook("BR02","Black_Rook.png",1);
+	wk01=new Knight("WK01","White_Knight.png",0);
+	wk02=new Knight("WK02","White_Knight.png",0);
+	bk01=new Knight("BK01","Black_Knight.png",1);
+	bk02=new Knight("BK02","Black_Knight.png",1);
+	wb01=new Bishop("WB01","White_Bishop.png",0);
+	wb02=new Bishop("WB02","White_Bishop.png",0);
+	bb01=new Bishop("BB01","Black_Bishop.png",1);
+	bb02=new Bishop("BB02","Black_Bishop.png",1);
+	wq=new Queen("WQ","White_Queen.png",0);
+	bq=new Queen("BQ","Black_Queen.png",1);
+	wk=new King("WK","White_King.png",0,7,4);
+	bk=new King("BK","Black_King.png",1,0,4);
+	wp=new Pawn[8];
+	bp=new Pawn[8];
+	for(int i=0;i<8;i++)
+	{
+		wp[i]=new Pawn("WP0"+(i+1),"White_Pawn.png",0);
+		bp[i]=new Pawn("BP0"+(i+1),"Black_Pawn.png",1);
+	}
+	
+	//Setting up the board
+	Mainboard = new Main();
+	Mainboard.setVisible(true);	
+	Mainboard.setResizable(false);
 	}
 	
 	//Constructor
@@ -348,13 +350,13 @@ public class Main extends JFrame implements MouseListener
 					P=wb01;
 				else if(i==7&&j==5)
 					P=wb02;
-				else if(i==0&&j==3)
-					P=bk;
 				else if(i==0&&j==4)
+					P=bk;
+				else if(i==0&&j==3)
 					P=bq;
-				else if(i==7&&j==3)
-					P=wk;
 				else if(i==7&&j==4)
+					P=wk;
+				else if(i==7&&j==3)
 					P=wq;
 				else if(i==1)
 				P=bp[j];
@@ -718,9 +720,33 @@ public class Main extends JFrame implements MouseListener
 					if(c.getpiece()!=null)
 						c.removePiece();
 					c.setPiece(previous.getpiece());
+					
+					if(c.getpiece() instanceof King)
+						checkIfHasCastled(c);
+					
+					if(c.getpiece() instanceof Rook || c.getpiece() instanceof King)
+						c.getpiece().hasMoved = true;
+					
+					// logic for pawn promotion
+					
+					if(checkIfPossibleToPromote(c))
+						c = promotePawn(c);
+					
+					if(c.getpiece() instanceof Pawn){
+						if(Math.abs(previous.x - c.x) == 2)
+							((Pawn)c.getpiece()).hasJustSteppedTwoSpacesForward = true;
+						else
+							((Pawn)c.getpiece()).hasJustSteppedTwoSpacesForward = false;
+						
+						checkIfHasUsedEnPassant(c);
+					}
+					
+					
 					if (previous.ischeck())
 						previous.removecheck();
 					previous.removePiece();
+					
+					
 					if(getKing(chance^1).isindanger(boardState))
 					{
 						boardState[getKing(chance^1).getx()][getKing(chance^1).gety()].setcheck();
@@ -801,7 +827,116 @@ public class Main extends JFrame implements MouseListener
 		
 	}
     
-    //Other Irrelevant abstract function. Only the Click Event is captured.
+	private static void checkIfHasUsedEnPassant(Cell pawnCellMovedTo) {
+		
+		if(pawnCellMovedTo.x != 2 && pawnCellMovedTo.x != 5)
+			return;
+		
+		Pawn pawnPiece = (Pawn) pawnCellMovedTo.getpiece();
+		
+		
+		checkIfPawnBehindAndItJustJumped(pawnCellMovedTo, pawnPiece);
+		
+	}
+
+	private static void checkIfPawnBehindAndItJustJumped(Cell pawnCellMovedTo, Pawn pawnPiece) {
+		
+		if(pawnCellMovedTo.x == 2){
+			Cell cellBehindPawn = boardState[3][pawnCellMovedTo.y];
+			Piece behindPiece = cellBehindPawn.getpiece();
+			
+			if(!(behindPiece instanceof Pawn))
+				return;
+			
+			if(((Pawn) behindPiece).hasJustSteppedTwoSpacesForward){
+				Cell pawnCell = boardState[3][pawnCellMovedTo.y];
+				pawnCell.removePiece();
+			}
+			
+		}
+		else{
+			Cell cellBehindPawn = boardState[6][pawnCellMovedTo.y];
+			Piece behindPiece = cellBehindPawn.getpiece();
+			
+			if(!(behindPiece instanceof Pawn))
+				return;
+			
+			if(((Pawn) behindPiece).hasJustSteppedTwoSpacesForward){
+				Cell pawnCell = boardState[6][pawnCellMovedTo.y];
+				pawnCell.removePiece();
+			}
+		}
+	}
+
+	private static void checkIfHasCastled(Cell kingCell) {
+		King kingPiece = (King) kingCell.getpiece();
+		
+		if(!kingPiece.canEvenCastle)
+			return;
+		
+		int xCoord = kingCell.x;
+		int yCoord = kingCell.y;
+		
+		if(xCoord != 0 && xCoord != 7)
+			return;
+		
+		if(yCoord != 2 && yCoord != 6)
+			return;
+		
+		handleRookMovementOnCastle(kingCell);
+		
+	}
+	
+	private static void handleRookMovementOnCastle(Cell kingCell){
+		int xCoord = kingCell.x;
+		int yCoord = kingCell.y;
+		
+		if(yCoord == 2){
+			Cell rookCell = boardState[xCoord][0];
+			Piece rookPiece = rookCell.getpiece();
+			
+			rookPiece.hasMoved = true;
+			rookCell.removePiece();
+			
+			boardState[xCoord][3].setPiece(rookPiece);
+		}else{
+			Cell rookCell = boardState[7][7];
+			Piece rookPiece = rookCell.getpiece();
+			
+			rookPiece.hasMoved = true;
+			boardState[7][7].removePiece();
+			
+			boardState[xCoord][5].setPiece(rookPiece);
+		}
+	}
+
+	private static boolean checkIfPossibleToPromote(Cell cellToCheck){
+		Piece chessPiece = cellToCheck.getpiece();
+		
+		if(!(chessPiece instanceof Pawn))
+			return false;
+		
+		System.out.println(cellToCheck.x != 0);
+		if(cellToCheck.x != 0 && cellToCheck.x != 7)
+			return false;
+		
+		return true;
+	}
+	
+    private static Cell promotePawn(Cell cellToCheck) {
+    	Piece chessPiece = cellToCheck.getpiece();
+    	
+		
+		
+		if(chessPiece.getcolor() == 0)
+			cellToCheck.setPiece(new Queen("WQA","White_Queen.png",0));
+		else
+			cellToCheck.setPiece(new Queen("BQA","Black_Queen.png", 1));
+		
+		return cellToCheck;
+	}
+
+	//Other Irrelevant abstract function. Only the Click Event is captured.
 	@Override
 	public void mouseEntered(MouseEvent arg0) {
 		// TODO Auto-generated method stub
