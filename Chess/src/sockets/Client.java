@@ -89,6 +89,11 @@ public class Client extends Thread
 
 			//send greeting to the server
 			sendLine("Hi server!");
+			String startString = receiveLine();
+				
+			if (startString.equals("start")) {
+				Main.start();
+			}
 			
 			Turn prevTurn = null;
 			//wait for your turn
@@ -96,7 +101,14 @@ public class Client extends Thread
 
 				line = receiveLine();
 				
-				if (line.equals("your turn")) {
+				if (line.equals("resume")) {
+					// also set to be the correct turn here??
+					Main.setWhoseTurnWithChance();
+					Time.update();
+					
+				}
+				
+				else if (line.equals("your turn")) {
 
 					long turnTime = 0;
 					if (prevTurn != null) {

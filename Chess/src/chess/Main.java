@@ -51,22 +51,16 @@ public class Main extends JFrame implements MouseListener
 	private static Cell c;
 
 	public static Cell previous;
-	private static int chance=0;
+	public static int chance=0;
 	public static Cell boardState[][];
 	private static ArrayList<Cell> destinationlist = new ArrayList<Cell>();
-	private static Player White=null;
 
-	private static Player Black=null;
 	private static JPanel board=new JPanel(new GridLayout(8,8));
-	private static JPanel wdetails=new JPanel(new GridLayout(3,3));
-	private static JPanel bdetails=new JPanel(new GridLayout(3,3));
 	private JPanel wcombopanel=new JPanel();
 	private JPanel bcombopanel=new JPanel();
 	private static JPanel controlPanel;
 
-	private static JPanel WhitePlayer;
 
-	private static JPanel BlackPlayer;
 
 	private static JPanel temp;
 
@@ -74,7 +68,7 @@ public class Main extends JFrame implements MouseListener
 
 	private static JPanel showPlayer;
 
-	private JPanel time;
+	private static JPanel time;
 	private static JSplitPane split;
 	private static JLabel label;
 
@@ -82,7 +76,6 @@ public class Main extends JFrame implements MouseListener
 	private static JLabel CHNC;
 	private static Time timer;
 	public static Main Mainboard;
-	private boolean selected=false;
 
 	private static boolean end=false;
 	private Container content;
@@ -90,11 +83,9 @@ public class Main extends JFrame implements MouseListener
 	private ArrayList<String> Wnames=new ArrayList<String>();
 	private ArrayList<String> Bnames=new ArrayList<String>();
 	private JComboBox<String> wcombo,bcombo;
-	private String wname=null,bname=null;
 
 	private static String winner=null;
 	static String move;
-	private Player tempPlayer;
 	private JScrollPane wscroll,bscroll;
 	private String[] WNames={},BNames={};
 	private static JSlider timeSlider;
@@ -109,11 +100,14 @@ public class Main extends JFrame implements MouseListener
 
 	private static Button BNewPlayer;
 	public static int timeRemaining=60;
-	public static boolean myTurn = false;
-	private static ChessTeam player = null;
+	public static ChessTeam player = null;
+	public static ChessTeam whoseTurn = ChessTeam.WHITE;
 	public static MoveMsg moveMsg = null;;
 
+	private static JPanel serverPanel;
+	private static JPanel clientPanel;
 	
+	private Server server;
 	public static void main(String[] args){
 	
 
@@ -154,12 +148,8 @@ public class Main extends JFrame implements MouseListener
 		timeRemaining=60;
 		timeSlider = new JSlider();
 		move="White";
-		wname=null;
-		bname=null;
 		winner=null;
 		board=new JPanel(new GridLayout(8,8));
-		wdetails=new JPanel(new GridLayout(3,3));
-		bdetails=new JPanel(new GridLayout(3,3));
 		bcombopanel=new JPanel();
 		wcombopanel=new JPanel();
 		Wnames=new ArrayList<String>();
@@ -206,8 +196,8 @@ public class Main extends JFrame implements MouseListener
 		
 		
 		//SOCKETS UI
-		final JPanel server = new JPanel();
-		final JPanel client = new JPanel();
+		serverPanel = new JPanel();
+		clientPanel = new JPanel();
 
 		JLabel serverLabel = new JLabel("SERVER");
 		final JTextField serverPortInput = new JTextField(null);
@@ -226,15 +216,15 @@ public class Main extends JFrame implements MouseListener
 				}catch (Exception ex) {
 					System.out.println("port must be number");
 				}
-				Server server = new Server(portNum);
+				server = new Server(portNum);
 				Main.setTeam(ChessTeam.THIRD);
 			}
 			
 		});	
-		server.add(serverLabel);
-		server.add(serverPortLabel);
-		server.add(serverPortInput);
-		server.add(startServerButton);
+		serverPanel.add(serverLabel);
+		serverPanel.add(serverPortLabel);
+		serverPanel.add(serverPortInput);
+		serverPanel.add(startServerButton);
 
 		
 		JLabel clientLabel = new JLabel("CLIENT");
@@ -264,23 +254,17 @@ public class Main extends JFrame implements MouseListener
 			}
 			
 		});	
-		client.add(clientLabel);
-		client.add(clientPortLabel);
-		client.add(clientPortInput);
-		client.add(clientIpLabel);
-		client.add(clientIpInput);
-		client.add(connectButton);
+		clientPanel.add(clientLabel);
+		clientPanel.add(clientPortLabel);
+		clientPanel.add(clientPortInput);
+		clientPanel.add(clientIpLabel);
+		clientPanel.add(clientIpInput);
+		clientPanel.add(connectButton);
 		
 		
 		
 		//Defining the Player Box in Control Panel
-		WhitePlayer=new JPanel();
-		WhitePlayer.setBorder(BorderFactory.createTitledBorder(null, "White Player", TitledBorder.TOP,TitledBorder.CENTER, new Font("times new roman",Font.BOLD,18), Color.RED));
-		WhitePlayer.setLayout(new BorderLayout());
 		
-		BlackPlayer=new JPanel();
-		BlackPlayer.setBorder(BorderFactory.createTitledBorder(null, "Black Player", TitledBorder.TOP,TitledBorder.CENTER, new Font("times new roman",Font.BOLD,18), Color.BLUE));
-	    BlackPlayer.setLayout(new BorderLayout());
 		
 	    JPanel whitestats=new JPanel(new GridLayout(3,3));
 		JPanel blackstats=new JPanel(new GridLayout(3,3));
@@ -292,32 +276,22 @@ public class Main extends JFrame implements MouseListener
 		bcombopanel.setLayout(new FlowLayout());
 		wselect=new Button("Select");
 		bselect=new Button("Select");
-		wselect.addActionListener(new SelectHandler(0));
-		bselect.addActionListener(new SelectHandler(1));
 		WNewPlayer=new Button("New Player");
 		BNewPlayer=new Button("New Player");
-		WNewPlayer.addActionListener(new Handler(0));
-		BNewPlayer.addActionListener(new Handler(1));
 		wcombopanel.add(wscroll);
 		wcombopanel.add(wselect);
 		wcombopanel.add(WNewPlayer);
 		bcombopanel.add(bscroll);
 		bcombopanel.add(bselect);
 		bcombopanel.add(BNewPlayer);
-		WhitePlayer.add(wcombopanel,BorderLayout.NORTH);
-		BlackPlayer.add(bcombopanel,BorderLayout.NORTH);
 		whitestats.add(new JLabel("Name   :"));
 		whitestats.add(new JLabel("Played :"));
 		whitestats.add(new JLabel("Won    :"));
 		blackstats.add(new JLabel("Name   :"));
 		blackstats.add(new JLabel("Played :"));
 		blackstats.add(new JLabel("Won    :"));
-		WhitePlayer.add(whitestats,BorderLayout.WEST);
-		BlackPlayer.add(blackstats,BorderLayout.WEST);
-		controlPanel.add(client);
-		controlPanel.add(server);
-		controlPanel.add(WhitePlayer);
-		controlPanel.add(BlackPlayer);
+		controlPanel.add(clientPanel);
+		controlPanel.add(serverPanel);
 		
 		
 		//Defining all the Cells
@@ -378,22 +352,9 @@ public class Main extends JFrame implements MouseListener
 			public void actionPerformed(ActionEvent e) {
 				//remove stuff to make space
 		
-				if(White==null||Black==null) {
-					JOptionPane.showMessageDialog(controlPanel, "Fill in the details");
-				return;
-				}
-				controlPanel.remove(client);
-				controlPanel.remove(server);
-				controlPanel.remove(WhitePlayer);
-				controlPanel.remove(BlackPlayer);
-				White.updateGamesPlayed();
-				White.Update_Player();
-				Black.updateGamesPlayed();
-				Black.Update_Player();
-				WNewPlayer.disable();
-				BNewPlayer.disable();
-				wselect.disable();
-				bselect.disable();
+				server.startGames();
+				controlPanel.remove(clientPanel);
+				controlPanel.remove(serverPanel);
 				split.remove(temp);
 				split.add(board);
 				showPlayer.remove(timeSlider);
@@ -408,7 +369,9 @@ public class Main extends JFrame implements MouseListener
 				displayTime.remove(start);
 				displayTime.add(label);
 				timer=new Time(label);
-				timer.start();
+				//server.gamePlay();
+				//need a way to notify  the server
+				server.endWait();
 			}
 	    	
 	    });
@@ -449,10 +412,33 @@ public class Main extends JFrame implements MouseListener
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 	
+	public static void start() {
+		controlPanel.remove(clientPanel);
+		controlPanel.remove(serverPanel);
+		split.remove(temp);
+		split.add(board);
+		showPlayer.remove(timeSlider);
+		mov=new JLabel("Move:");
+		mov.setFont(new Font("Comic Sans MS",Font.PLAIN,20));
+		mov.setForeground(Color.red);
+		showPlayer.add(mov);
+		CHNC=new JLabel(move);
+		CHNC.setFont(new Font("Comic Sans MS",Font.BOLD,20));
+		CHNC.setForeground(Color.blue);
+		showPlayer.add(CHNC);
+		displayTime.remove(start);
+		displayTime.add(label);
+		timer=new Time(label);
+		Time.update();
+	}
 	public static void setTeam(ChessTeam team) {
 		player = team;
-		controlPanel.add(new JLabel(team.name()));
-		System.out.println("label added " + team.name());
+		if (player == ChessTeam.THIRD) {
+			controlPanel.add(new JLabel("server started, waiting for players"));
+		} else {
+			controlPanel.add(new JLabel(team.name() + " connected"));
+		}
+		controlPanel.revalidate();
 	}
 	
 	
@@ -460,11 +446,14 @@ public class Main extends JFrame implements MouseListener
 	// It is made public because it is to be accessed in the Time Class
 	public static void changechance()
 	{
+
 		if (boardState[getKing(chance).getx()][getKing(chance).gety()].ischeck())
 		{
 			chance^=1;
 			gameend();
 		}
+
+
 		if(destinationlist.isEmpty()==false)
 			cleandestinations(destinationlist);
 		if(previous!=null)
@@ -473,8 +462,6 @@ public class Main extends JFrame implements MouseListener
 		chance^=1;
 		if(!end && timer!=null)
 		{
-			timer.reset();
-			timer.start();
 			showPlayer.remove(CHNC);
 			if(Main.move=="White")
 				Main.move="Black";
@@ -627,24 +614,12 @@ public class Main extends JFrame implements MouseListener
     {
     	cleandestinations(destinationlist);
     	displayTime.disable();
-    	timer.countdownTimer.stop();
+    	timer.whiteCountdownTimer.stop();
+    	timer.blackCountdownTimer.stop();
     	if(previous!=null)
     		previous.removePiece();
-    	if(chance==0)
-		{	White.updateGamesWon();
-			White.Update_Player();
-			winner=White.name();
-		}
-		else
-		{
-			Black.updateGamesWon();
-			Black.Update_Player();
-			winner=Black.name();
-		}
+
 		JOptionPane.showMessageDialog(board,"Checkmate!!!\n"+winner+" wins");
-		WhitePlayer.remove(wdetails);
-		BlackPlayer.remove(bdetails);
-		displayTime.remove(label);
 		
 		displayTime.add(start);
 		showPlayer.remove(mov);
@@ -671,9 +646,9 @@ public class Main extends JFrame implements MouseListener
     public static void moveMaybe(int x, int y, boolean overrideSequence) {
 
     	if (!overrideSequence) {
-    		System.out.println("my turn = " + myTurn);
+    		System.out.println("my turn = " + isMyTurn());
     	}
-    	if (!myTurn && !overrideSequence) {
+    	if (!isMyTurn() && !overrideSequence) {
     		return;
     	}
     	c = boardState[x][y];
@@ -766,14 +741,9 @@ public class Main extends JFrame implements MouseListener
 						((King)c.getpiece()).sety(c.y);
 					}
 					changechance();
-					//teams switch, so send the move! SEND MOVE
+					// teams switch
 
 
-					if(!end)
-					{
-						timer.reset();
-						timer.start();
-					}
 				}
 				if(previous!=null)
 				{
@@ -963,121 +933,32 @@ public class Main extends JFrame implements MouseListener
 			timeRemaining=timeSlider.getValue()*60;
 		}
 	}
+
+
+	public static void stopTimers() {
+		// TODO Auto-generated method stub
+		timer.whiteCountdownTimer.stop();
+		timer.blackCountdownTimer.stop();
+		
+	}
+
 	
-	
-	class SelectHandler implements ActionListener
-	{
-		private int color;
-		
-		SelectHandler(int i)
-		{
-			color=i;
-		}
-			@Override
-			public void actionPerformed(ActionEvent arg0)
-			{
-				// TODO Auto-generated method stub
-				tempPlayer=null;
-				String n=(color==0)?wname:bname;
-				JComboBox<String> jc=(color==0)?wcombo:bcombo;
-				JComboBox<String> ojc=(color==0)?bcombo:wcombo;
-				ArrayList<Player> pl=(color==0)?wplayer:bplayer;
-				//ArrayList<Player> otherPlayer=(color==0)?bplayer:wplayer;
-				ArrayList<Player> opl=Player.fetch_players();
-				if(opl.isEmpty())
-					return;
-				JPanel det=(color==0)?wdetails:bdetails;
-				JPanel PL=(color==0)?WhitePlayer:BlackPlayer; 
-				if(selected==true)
-					det.removeAll();
-				n=(String)jc.getSelectedItem();
-				Iterator<Player> it=pl.iterator();
-				Iterator<Player> oit=opl.iterator();
-				while(it.hasNext())
-				{	
-					Player p=it.next();
-					if(p.name().equals(n))
-						{tempPlayer=p;
-						break;}
-				}
-				while(oit.hasNext())
-				{	
-					Player p=oit.next();
-					if(p.name().equals(n))
-						{opl.remove(p);
-						break;}
-				}
-				
-				if(tempPlayer==null)
-					return;
-				if(color==0)
-					White=tempPlayer;
-				else
-					Black=tempPlayer;
-				bplayer=opl;
-				ojc.removeAllItems();
-				for (Player s:opl)
-					ojc.addItem(s.name());
-				det.add(new JLabel(" "+tempPlayer.name()));
-				det.add(new JLabel(" "+tempPlayer.gamesplayed()));
-				det.add(new JLabel(" "+tempPlayer.gameswon()));
-				
-				PL.revalidate();
-				PL.repaint();
-				PL.add(det);
-				selected=true;
+	public static boolean isMyTurn() {
+		return player == whoseTurn;
+	}
+
+	public static void setWhoseTurnWithChance() {
+		System.out.println("chance is: " + Main.chance);
+			if (Main.chance == 1) {
+				Main.whoseTurn = ChessTeam.BLACK;
 			}
-			
-		}
-		
-		
-		
-		class Handler implements ActionListener{
-			private int color;
-			Handler(int i)
-			{
-				color=i;
+			else if (Main.chance == 0) {
+				Main.whoseTurn = ChessTeam.WHITE;
 			}
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				String n=(color==0)?wname:bname;
-				JPanel j=(color==0)?WhitePlayer:BlackPlayer;
-				ArrayList<Player> N=Player.fetch_players();
-				Iterator<Player> it=N.iterator();
-				JPanel det=(color==0)?wdetails:bdetails;
-				n=JOptionPane.showInputDialog(j,"Enter your name");
-					
-					if(n!=null)
-					{
-					
-					while(it.hasNext())
-					{
-						if(it.next().name().equals(n))
-						{JOptionPane.showMessageDialog(j,"Player exists");
-						return;}
-					}
-			
-						if(n.length()!=0)
-						{Player tem=new Player(n);
-						tem.Update_Player();
-						if(color==0)
-							White=tem;
-						else
-							Black=tem;
-						}
-						else return;
-					}
-				else
-					return;
-				det.removeAll();
-				det.add(new JLabel(" "+n));
-				det.add(new JLabel(" 0"));
-				det.add(new JLabel(" 0"));
-				j.revalidate();
-				j.repaint();
-				j.add(det);
-				selected=true;
-			}
-			}	 
+	}
+
+
+
+
+
 }

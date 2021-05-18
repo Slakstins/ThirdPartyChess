@@ -8,9 +8,9 @@ public class MoveMsg {
 	}
 	public synchronized String getMessage() {
 		try {
-			System.out.println("before wait");
+			System.out.println("Before wait");
 			wait();
-			System.out.println("after wait");
+			System.out.println("After wait");
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			try {
@@ -26,7 +26,7 @@ public class MoveMsg {
 		this.message = message;
 		System.out.println("message is: " + message);
 		notify();
-		Main.myTurn = false;
+		
 	}
 	
 	
