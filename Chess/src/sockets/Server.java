@@ -155,7 +155,7 @@ public class Server extends Thread
     	//need to call a method in main or something from here to achieve this
 
     	Main.stopTimers();
-    	Main.whoseTurn = Main.player;
+    	Main.whoseTurn = ChessTeam.THIRD;
 		Turn turn = new Turn(-1);
 		String outcome = turn.begin();
 		blackRequestHandler.sendLine(outcome);

@@ -46,13 +46,14 @@ public class Time
     //A function that starts the timer
     public static void update()
     {
+    	System.out.println("!");
     	whiteCountdownTimer.stop();
     	blackCountdownTimer.stop();
     	//start the correct timer
     	//if it's the third player's turn start no timers
     	System.out.println("time updating!");
     	System.out.println(Main.whoseTurn.name());
-    	if (Main.whoseTurn == ChessTeam.THIRD) {
+    	if (Main.thirdPlayerTurn) {
     		setTimersPaused();
     		return;
     	}
@@ -94,6 +95,8 @@ public class Time
        	 else if (Main.chance == 1) {
        		 timeleft = blackTimerem;
        	 }
+       	 
+       	 System.out.println("Timleft: " + timeleft);
 
        	 if (timeleft > 0) {
            	min= (int) (timeleft/60);
@@ -120,7 +123,9 @@ public class Time
 		   }
 		   // change the turn to the third player
 		   if (Main.player != ChessTeam.THIRD) {
+			   System.out.println("Changing team and thirdPlayer to true.");
 			   Main.whoseTurn = ChessTeam.THIRD;
+			   Main.thirdPlayerTurn = true;
 			   Time.update();
 		   }
 		   //start();

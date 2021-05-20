@@ -61,6 +61,10 @@ public class RequestHandler
     	if (team == ChessTeam.WHITE) {
     		sendLine("white");
     	}
+    	
+    	if(team == ChessTeam.THIRD) {
+    		sendLine("third");
+    	}
 		//receive message from client
 		String line = receiveLine();
 		System.out.println("received: " + line);

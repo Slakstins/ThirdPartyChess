@@ -37,7 +37,7 @@ import java.util.ListIterator;
 public class Main extends JFrame implements MouseListener
 {
 	private static final long serialVersionUID = 1L;
-	
+	private static int THIRD_PLAYER_WIN_CODE = 0;
 	//Variable Declaration
 	//private static final Main instance = new Main();
 	private static final int Height=700;
@@ -78,6 +78,7 @@ public class Main extends JFrame implements MouseListener
 	public static Main Mainboard;
 
 	private static boolean end=false;
+	private static boolean hasJustTakenPiece = false;
 	private Container content;
 	private ArrayList<Player> wplayer,bplayer;
 	private ArrayList<String> Wnames=new ArrayList<String>();
@@ -102,6 +103,7 @@ public class Main extends JFrame implements MouseListener
 	public static int timeRemaining=60;
 	public static ChessTeam player = null;
 	public static ChessTeam whoseTurn = ChessTeam.WHITE;
+	public static boolean thirdPlayerTurn = false;
 	public static MoveMsg moveMsg = null;;
 
 	private static JPanel serverPanel;
@@ -157,6 +159,8 @@ public class Main extends JFrame implements MouseListener
 		board.setMinimumSize(new Dimension(800,700));
 		ImageIcon img = new ImageIcon(this.getClass().getResource("icon.png"));
 		this.setIconImage(img.getImage());
+		
+		this.moveMsg = new MoveMsg();
 		
 		//Time Slider Details
 		timeSlider.setMinimum(1);
@@ -453,6 +457,7 @@ public class Main extends JFrame implements MouseListener
 			gameend();
 		}
 
+		System.out.println("Move " + Main.move);
 
 		if(destinationlist.isEmpty()==false)
 			cleandestinations(destinationlist);
@@ -649,9 +654,13 @@ public class Main extends JFrame implements MouseListener
     		System.out.println("my turn = " + isMyTurn());
     	}
     	if (!isMyTurn() && !overrideSequence) {
-    		return;
+    		if(!thirdPlayerTurn)
+    			return;
     	}
     	c = boardState[x][y];
+    	
+    	
+    	
     	if (previous==null)
 		{
 			if(c.getpiece()!=null)
@@ -692,8 +701,16 @@ public class Main extends JFrame implements MouseListener
 				    if (!overrideSequence) {
 						moveMsg.setMessage(previous.x + "," + previous.y +"," + x + "," + y);
 					}
-					if(c.getpiece()!=null)
+				    
+				    // Quick Check for the taken piece condition. If I had more time, would be more elegant.
+				    
+				    hasJustTakenPiece = false;
+				    
+					if(c.getpiece()!=null){
 						c.removePiece();
+						hasJustTakenPiece = true;
+					}
+					
 					c.setPiece(previous.getpiece());
 					
 					if(c.getpiece() instanceof King)
@@ -742,7 +759,17 @@ public class Main extends JFrame implements MouseListener
 					}
 					changechance();
 					// teams switch
-
+					
+					
+					if(Main.thirdPlayerTurn){
+						System.out.println("Changing thirdPlayerTurnToFalse");					
+						Main.thirdPlayerTurn = false;
+						setWhoseTurnWithChance();
+						// change 3rd parameter to 1 for demo in class (taking another piece)
+						// the WIN_CODE just returns true
+						checkIfThirdPlayerHasWonOnCondition(previous, c, 1);
+						Time.update();
+					}
 
 				}
 				if(previous!=null)
@@ -787,7 +814,17 @@ public class Main extends JFrame implements MouseListener
     	
     }
     
-    //These are the abstract function of the parent class. Only relevant method here is the On-Click Fuction
+    private static void checkIfThirdPlayerHasWonOnCondition(Cell previous, Cell c, int condID) {
+		if(condID == 0)
+			gameend();
+		
+		if(condID == 1){
+			if(hasJustTakenPiece)
+				gameend();
+		}
+	}
+
+	//These are the abstract function of the parent class. Only relevant method here is the On-Click Fuction
     //which is called when the user clicks on a particular cell
 	@Override
 	public void mouseClicked(MouseEvent arg0){
@@ -955,6 +992,8 @@ public class Main extends JFrame implements MouseListener
 			else if (Main.chance == 0) {
 				Main.whoseTurn = ChessTeam.WHITE;
 			}
+			
+			setTeam(Main.whoseTurn);
 	}
 
 

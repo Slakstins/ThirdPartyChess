@@ -86,6 +86,9 @@ public class Client extends Thread
 			else if (line.equals("white")) {
 				Main.setTeam(ChessTeam.WHITE);
 			}
+			else if (line.equals("third")){
+				Main.setTeam(ChessTeam.THIRD);
+			}
 
 			//send greeting to the server
 			sendLine("Hi server!");
@@ -112,7 +115,9 @@ public class Client extends Thread
 
 					long turnTime = 0;
 					if (prevTurn != null) {
-						 turnTime = prevTurn.getTimeLeft();
+						// not a cumulative time, only per turn
+						
+						turnTime = prevTurn.getTimeLeft();
 					}
 					Turn turn = new Turn(turnTime);
 					//waits for outcome
