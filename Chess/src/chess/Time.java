@@ -120,6 +120,7 @@ public class Time
 		   }
 		   // change the turn to the third player
 		   if (Main.player != ChessTeam.THIRD) {
+			   Main.thirdPlayerTurn = true;
 			   Main.whoseTurn = ChessTeam.THIRD;
 			   Time.update();
 		   }

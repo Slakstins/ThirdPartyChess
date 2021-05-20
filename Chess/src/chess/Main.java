@@ -49,11 +49,12 @@ public class Main extends JFrame implements MouseListener
 	private static Queen wq,bq;
 	private static King wk,bk;
 	private static Cell c;
+	private static boolean hasJustTakenPiece = false;
 
 	public static Cell previous;
 	public static int chance=0;
 	public static Cell boardState[][];
-	private static ArrayList<Cell> destinationlist = new ArrayList<Cell>();
+	public static ArrayList<Cell> destinationlist = new ArrayList<Cell>();
 
 	private static JPanel board=new JPanel(new GridLayout(8,8));
 	private JPanel wcombopanel=new JPanel();
@@ -106,6 +107,10 @@ public class Main extends JFrame implements MouseListener
 
 	private static JPanel serverPanel;
 	private static JPanel clientPanel;
+
+	public static boolean thirdPlayerTurn = false;
+
+	private static boolean thirdPlayerWon = false;
 	
 	private Server server;
 	public static void main(String[] args){
@@ -244,9 +249,11 @@ public class Main extends JFrame implements MouseListener
 			public void actionPerformed(ActionEvent e) {
 				String port = clientPortInput.getText();
 				String ip = clientIpInput.getText();
+				
 				int portNum = 0;
 				try {
 					portNum = Integer.parseInt(port);
+					displayTime.remove(start);
 				}catch (Exception ex) {
 					System.out.println("port must be number");
 				}
@@ -343,7 +350,7 @@ public class Main extends JFrame implements MouseListener
 			}
 		showPlayer=new JPanel(new FlowLayout());  
 		showPlayer.add(timeSlider);
-		JLabel setTime=new JLabel("Set Timer(in mins):"); 
+		final JLabel setTime=new JLabel("Set Timer(in mins):"); 
 		start=new Button("Start");
 		start.setBackground(Color.black);
 		start.setForeground(Color.white);
@@ -353,6 +360,7 @@ public class Main extends JFrame implements MouseListener
 				//remove stuff to make space
 		
 				server.startGames();
+				setTime.setText("");
 				controlPanel.remove(clientPanel);
 				controlPanel.remove(serverPanel);
 				split.remove(temp);
@@ -434,7 +442,7 @@ public class Main extends JFrame implements MouseListener
 	public static void setTeam(ChessTeam team) {
 		player = team;
 		if (player == ChessTeam.THIRD) {
-			controlPanel.add(new JLabel("server started, waiting for players"));
+			controlPanel.add(new JLabel("server started"));
 		} else {
 			controlPanel.add(new JLabel(team.name() + " connected"));
 		}
@@ -482,7 +490,7 @@ public class Main extends JFrame implements MouseListener
 	}
 	
 	//A function to clean the highlights of possible destination cells
-    private static void cleandestinations(ArrayList<Cell> destlist)      //Function to clear the last move's destinations
+    public static void cleandestinations(ArrayList<Cell> destlist)      //Function to clear the last move's destinations
     {
     	ListIterator<Cell> it = destlist.listIterator();
     	while(it.hasNext())
@@ -619,8 +627,11 @@ public class Main extends JFrame implements MouseListener
     	if(previous!=null)
     		previous.removePiece();
 
-		JOptionPane.showMessageDialog(board,"Checkmate!!!\n"+winner+" wins");
-		
+    	if (Main.thirdPlayerWon)
+    		JOptionPane.showMessageDialog(board, "third player wins!");
+    	else {
+    		JOptionPane.showMessageDialog(board,"Checkmate!!!\n"+winner+" wins");
+    	}
 		displayTime.add(start);
 		showPlayer.remove(mov);
 		showPlayer.remove(CHNC);
@@ -649,7 +660,8 @@ public class Main extends JFrame implements MouseListener
     		System.out.println("my turn = " + isMyTurn());
     	}
     	if (!isMyTurn() && !overrideSequence) {
-    		return;
+    		if (!thirdPlayerTurn)
+    			return;
     	}
     	c = boardState[x][y];
     	if (previous==null)
@@ -692,8 +704,11 @@ public class Main extends JFrame implements MouseListener
 				    if (!overrideSequence) {
 						moveMsg.setMessage(previous.x + "," + previous.y +"," + x + "," + y);
 					}
-					if(c.getpiece()!=null)
+				    hasJustTakenPiece = false;
+					if(c.getpiece()!=null) {
 						c.removePiece();
+						hasJustTakenPiece = true;
+					}
 					c.setPiece(previous.getpiece());
 					
 					if(c.getpiece() instanceof King)
@@ -742,6 +757,15 @@ public class Main extends JFrame implements MouseListener
 					}
 					changechance();
 					// teams switch
+					if(Main.thirdPlayerTurn){
+						System.out.println("Changing thirdPlayerTurnToFalse");					
+						Main.thirdPlayerTurn = false;
+						setWhoseTurnWithChance();
+						// change 3rd parameter to 1 for demo in class (taking another piece)
+						// the WIN_CODE just returns true
+						checkIfThirdPlayerHasWonOnCondition(previous, c, 1);
+						Time.update();
+					}
 
 
 				}
@@ -807,6 +831,17 @@ public class Main extends JFrame implements MouseListener
 		
 		checkIfPawnBehindAndItJustJumped(pawnCellMovedTo, pawnPiece);
 		
+	}
+	
+	private static void checkIfThirdPlayerHasWonOnCondition(Cell previous, Cell c, int condID) {
+		if(condID == 0)
+			gameend();
+		
+		if(condID == 1){
+			if(hasJustTakenPiece)
+				Main.thirdPlayerWon = true;
+				gameend();
+		}
 	}
 
 	private static void checkIfPawnBehindAndItJustJumped(Cell pawnCellMovedTo, Pawn pawnPiece) {

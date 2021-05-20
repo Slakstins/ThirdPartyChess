@@ -153,6 +153,7 @@ public class Server extends Thread
     
     private void thirdPlayerTurn() {
     	//need to call a method in main or something from here to achieve this
+    	Main.thirdPlayerTurn = true;
 
     	Main.stopTimers();
     	Main.whoseTurn = Main.player;

@@ -44,6 +44,7 @@ public class Turn implements Runnable {
 
 			timeLeft = socketTimer.stopTimer();
 		} else {
+			Main.cleandestinations(Main.destinationlist);
 			//reset the clock display
 			//turn time ran out, so kill the turn taking thread
 			Main.whoseTurn = ChessTeam.THIRD;
