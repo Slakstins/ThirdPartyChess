@@ -28,10 +28,10 @@ Multi-threading utilized in several places
 Developing the Project
 ----------------------
 
-The base project that we started with was not perfect, but that made things much more interesting than if it had been. We attempted to add en passante and castling to the chess logic, but the program was hard coded to only be capable of moving/removing a single piece graphically per turn, so there are some issues with one piece's graphics persisting until the space is refreshed in some way.
+The base project that we started with was not perfect, but that made things much more interesting than if it had been. We attempted to add en passant and castling to the chess logic, but the program was hard coded to only be capable of moving/removing a single piece graphically per turn, so there are some issues with one piece's graphics persisting until the space is refreshed in some way.
 
 Who did what?
 ----------------------
 Seth Lakstins set up the socket connections, timeouts, gui updates, and in game timer display.
 
-Joey Hegg added in chess logic for en passante and castling
+Joey Hegg added in chess logic for en passant and castling
