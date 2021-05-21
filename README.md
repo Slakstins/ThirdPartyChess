@@ -1,32 +1,37 @@
-ChessOOP
+Third Person Chess
 ========
 
-A simple GUI based chess game that implements basic OOP concepts in Java. The class design and requirement analysis of this project was done as a part of the Object Oriented Analysis and Design course while the actual implementation was done was a part of Paradigms of Programming Part I course.
+A GUI based chess game with socket functionality and a twist: if the turn timer of a player runs out, a third party gets to take a turn. In this case, that third party is the host, and the two clients are the ones playing the "normal" game of chess.
 
 Running the Game
 ----------------
 
-This game can be played by simply executing binary in Executable Jar folder. The Executable bit of the Chess.jar needs to be set in order to execute the file. New players have to be created for the first time you run the program.
+Open a copy of the game on three devices. One device, the host, must enter a valid port number and click "Start Server".
+The other two players enter the host's IP address and the socket entered by the host and then click "Start Client".
+The host can then press the "Start" button to begin the game for all three players.
 
 Features
 --------
+A base chess game - created by
+Ashish Kedia (ashish1294@gmail.com) and
+Adarsh Mohata (amohta163@gmail.com)
+as an OOP chess project.
 
-1. GUI Developed using Java Swing
-2. Backtracking to determine all possible moves of a piece
-3. Greedy Approach to determine if the move results in a potential win/loss
-4. A number of GUI Event Handlers were implemented
+Third player capability - the plan here was that the third player would have win conditions, such as removing all 4 rooks from the game, but we didn't get around to that.
+
+Turn timout and turn timer
+
+Socket communication
+
+Multi-threading utilized in several places
 
 Developing the Project
 ----------------------
 
-The project can be imported in Eclipse and developers can start right away. The are two 2 main packages. The Piece package provides functionalities for each piece on the Chess Board. The chess package provides the major functionalies including the Main Class. The Time Class provides the timer related functions and the Player Class is the vitual avatar of a real player. The chessboard is made of 64 cells and each cell is modeled in Cell class. The GUI functions on each cell has also been provided.
+The base project that we started with was not perfect, but that made things much more interesting than if it had been. We attempted to add en passante and castling to the chess logic, but the program was hard coded to only be capable of moving/removing a single piece graphically per turn, so there are some issues with one piece's graphics persisting until the space is refreshed in some way.
 
-The project has been well documented in 3 docs - Software Requirement Specification, Class Design, Project Documentation. Please go through it to get more insight about the working of the project.
+Who did what?
+----------------------
+Seth Lakstins set up the socket connections, timeouts, gui updates, and in game timer display.
 
-Since this was one of our first project during our undergraduate, there are a lot of bugs. The coding style and standards might not be up to the mark. Please bear with us.
-
-Project Contributors
---------------------
-
-1. Ashish Kedia (ashish1294@gmail.com)
-2. Adarsh Mohata (amohta163@gmail.com)
+Joey Hegg added in chess logic for en passante and castling
