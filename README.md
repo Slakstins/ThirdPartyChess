@@ -34,7 +34,7 @@ Who did what?
 ----------------------
 Seth Lakstins set up the socket connections, timeouts, gui updates, and in game timer display.
 
-Joey Hegg added in chess logic for en passant and castling and pawn promotion. Joey Hegg also handled third party win conditions and how the third party would give control back to the other players once their turn had ended.
+Joey Hegg added in chess logic for en passant and castling and pawn promotion. Joey Hegg also handled third party win conditions, as well as refining the existing protocol for third party transitioning.
 
 Links To Repo and Demo
 ----------------------
